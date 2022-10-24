@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "BZUclz6xs8ZD+6KTwOcJ6AWE72tuJCm5y5Iyt5ofoLw=",
+  "Source": "InnoGotchi.API",
+  "BasePath": "_content/InnoGotchi.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
