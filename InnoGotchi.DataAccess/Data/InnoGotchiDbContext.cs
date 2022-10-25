@@ -16,5 +16,7 @@ namespace InnoGotchi.DataAccess.Data
         public DbSet<VitalSign> VitalSigns { get; set; }
         public DbSet<BodyPart> BodyParts { get; set; }
         public DbSet<BodyPartType> BodyPartTypes { get; set; }
+        public DbSet<IdentityUser> IdentityUsers { get; set; }
+        public DbSet<IdentityRole> IdentityRoles { get; set; }
     }
 }

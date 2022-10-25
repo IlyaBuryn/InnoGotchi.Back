@@ -3,6 +3,7 @@
     public class Farm : EntityBase
     {
         public string Name { get; set; }
-        public virtual ICollection<Pet> Pets { get; set; }
+        public IdentityUser User { get; set; }
+        public virtual ICollection<Pet> Pets { get; set; } = null!;
     }
 }

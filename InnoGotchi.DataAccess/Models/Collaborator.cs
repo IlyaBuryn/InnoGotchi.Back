@@ -2,7 +2,7 @@
 {
     public class Collaborator : EntityBase
     {
-        public Farm Farm { get; set; }
-        public int UserId { get; set; }
+        public Farm? Farm { get; set; }
+        public IdentityUser User { get; set; }
     }
 }

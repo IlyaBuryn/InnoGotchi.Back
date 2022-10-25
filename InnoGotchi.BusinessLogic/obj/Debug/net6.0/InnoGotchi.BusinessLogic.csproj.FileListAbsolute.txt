@@ -13,3 +13,5 @@ E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.BusinessLogic
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.BusinessLogic\obj\Debug\net6.0\refint\InnoGotchi.BusinessLogic.dll
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.BusinessLogic\obj\Debug\net6.0\InnoGotchi.BusinessLogic.pdb
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.BusinessLogic\obj\Debug\net6.0\ref\InnoGotchi.BusinessLogic.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.BusinessLogic\bin\Debug\net6.0\InnoGotchi.BusinessLogic.runtimeconfig.json
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.BusinessLogic\obj\Debug\net6.0\InnoGotchi.BusinessLogic.genruntimeconfig.cache

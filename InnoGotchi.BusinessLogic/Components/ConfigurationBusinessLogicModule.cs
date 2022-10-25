@@ -11,6 +11,7 @@ namespace InnoGotchi.BusinessLogic.Components
         {
             service.AddScoped<IPetService, PetService>();
             service.AddScoped<IFarmService, FarmService>();
+            service.AddScoped<IAccountService, AccountService>();
         }
 
         public static void ConfigurationBusinessLogicManagers(this IServiceCollection builder, string connectionString)

@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "ZFKDWuh6SANqZLkmjEF3QTAE6dOldeLiLS3jdEtMcG8nrhewXjNKaMwFXpTVA8MfgSysZYdAJfjmyHHlrPWqzA==",
+  "dgSpecHash": "2FM89ZdXijmIPzFpasIkffYcsL/55ZoV8RSVG/G3xYApRhIpEkhvw4Vfz0uNqYQKQfmO7zQEYCb12uNm4rR8jQ==",
   "success": true,
   "projectFilePath": "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.DataAccess\\InnoGotchi.DataAccess.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Isaac\\.nuget\\packages\\fluentvalidation\\11.2.2\\fluentvalidation.11.2.2.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.data.sqlclient\\2.1.4\\microsoft.data.sqlclient.2.1.4.nupkg.sha512",

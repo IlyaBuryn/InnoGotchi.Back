@@ -66,6 +66,9 @@ namespace InnoGotchi.BusinessLogic.Services
             if (await _petRep.GetByIdAsync(pet.Id) == null)
                 throw new NotFoundException("This pet does not exist!");
 
+            if (pet.MouthId == null || pet.EyeId == null || pet.NoseId == null || pet.BodyId == null)
+                throw new NullReferenceException("One of body parts is null");
+
             await _petRep.UpdateAsync(_mapper.Map<Pet>(pet));
         }
     }

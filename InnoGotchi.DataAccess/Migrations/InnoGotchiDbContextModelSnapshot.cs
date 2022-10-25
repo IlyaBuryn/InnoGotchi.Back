@@ -73,7 +73,7 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("FarmId")
+                    b.Property<int?>("FarmId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
@@ -82,6 +82,8 @@ namespace InnoGotchi.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FarmId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Collaborators");
                 });
@@ -98,9 +100,66 @@ namespace InnoGotchi.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Farms");
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IdentityRoles");
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Surname")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("IdentityUsers");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Pet", b =>
@@ -191,11 +250,39 @@ namespace InnoGotchi.DataAccess.Migrations
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.Farm", "Farm")
                         .WithMany()
-                        .HasForeignKey("FarmId")
+                        .HasForeignKey("FarmId");
+
+                    b.HasOne("InnoGotchi.DataAccess.Models.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Farm");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.Farm", b =>
+                {
+                    b.HasOne("InnoGotchi.DataAccess.Models.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityUser", b =>
+                {
+                    b.HasOne("InnoGotchi.DataAccess.Models.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Pet", b =>
