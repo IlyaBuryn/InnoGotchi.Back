@@ -1,36 +1,40 @@
-using InnoGotchi.API.AuthOptions;
+using InnoGotchi.API.Settings;
 using InnoGotchi.BusinessLogic.Components;
 using InnoGotchi.BusinessLogic.MappingProfiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidIssuer = AuthApiOptions.ISSUER,
-
-        ValidateAudience = true,
-        ValidAudience = AuthApiOptions.AUDIENCE,
-
-        ValidateLifetime = true,
-
-        IssuerSigningKey = AuthApiOptions.GetSymmetricSecurityKey(),
-        ValidateIssuerSigningKey = true,
-    };
-});
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.ConfigurationBusinessLogicManagers(
-    builder.Configuration.GetConnectionString("InnoGotchiDbConnection"));
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = JwtSettings.GetJwtOptions(builder.Configuration);
+    });
+
+builder.Services.AddCors();
+
+
 
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -38,7 +42,11 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.AddProfile<FarmMapProfile>();
     cfg.AddProfile<UserMapProfile>();
     cfg.AddProfile<RoleMapProfile>();
+    cfg.AddProfile<PageMapProfile>();
 });
+
+builder.Services.ConfigurationBusinessLogicManagers(
+    builder.Configuration.GetConnectionString("InnoGotchiDbConnection"));
 
 var app = builder.Build();
 
@@ -52,9 +60,19 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();   
+app.MapControllers();
+
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+//app.UseMiddleware<JwtMiddleware>();
+app.UseEndpoints(x => x.MapControllers());
+
 
 app.Run();

@@ -3,11 +3,10 @@
     public class Pet : EntityBase
     {
         public string Name { get; set; }
-        public Farm Farm { get; set; }
-        public BodyPart? Body { get; set; }
-        public BodyPart? Eye { get; set; }
-        public BodyPart? Nose { get; set; }
-        public BodyPart? Mouth { get; set; }
+        public int FarmId { get; set; }
         public DateTime CreationDate { get; set; }
+
+        public virtual Farm Farm { get; set; }
+        public virtual ICollection<BodyPart> BodyParts { get; set; } = null!;
     }
 }

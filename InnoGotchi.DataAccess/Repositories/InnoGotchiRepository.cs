@@ -1,7 +1,10 @@
-﻿using InnoGotchi.DataAccess.Data;
+﻿using InnoGotchi.DataAccess.Components;
+using InnoGotchi.DataAccess.Data;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System.Threading;
 
 namespace InnoGotchi.DataAccess.Repositories
 {
@@ -23,12 +26,37 @@ namespace InnoGotchi.DataAccess.Repositories
             return entity.Id;
         }
 
-        public IQueryable<T> GetAll() => _dbSet;
-        public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+        public async Task<T> GetOneAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            if (predicate == null)
+                return _dbSet.FirstOrDefault();
+
+            return _dbSet.FirstOrDefault(predicate);
+        }
+
+        public async Task<IQueryable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            if (predicate == null)
+                return _dbSet.OrderByDescending(e => e.Id);
+
+            return _dbSet.OrderByDescending(e => e.Id).Where(predicate);
+        }
+
+        public async Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null)
+        {
+            if (predicate == null)
+                return await Page<T>.CreateFromQueryAsync(
+                    _dbSet.OrderByDescending(e => e.Id), pageNumber, pageSize);
+            
+            return await Page<T>.CreateFromQueryAsync(
+                _dbSet.OrderByDescending(e => e.Id).Where(predicate), pageNumber, pageSize);
+        }
+
+        public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(new object[] { id });
 
         public async Task<bool> RemoveAsync(int id)
         {
-            T? entity = await _context.FindAsync<T>(id);
+            T? entity = await _context.FindAsync<T>(new object[] { id });
             if (entity != null)
             {
                 _context.Remove(entity);
@@ -38,10 +66,15 @@ namespace InnoGotchi.DataAccess.Repositories
             return false;
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<bool> UpdateAsync(T entity)
         {
             _context.Update(entity);
-            await _context.SaveChangesAsync();
+            if (entity != null)
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
     }
 }

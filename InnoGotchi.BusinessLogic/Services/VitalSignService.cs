@@ -26,7 +26,7 @@ namespace InnoGotchi.BusinessLogic.Services
             if (vitalSign == null)
                 throw new NullReferenceException(nameof(vitalSign));
 
-            var pet = _petRep.GetAll().FirstOrDefault(x => x.Id == vitalSign.PetId);
+            var pet = await _petRep.GetAllAsync(x => x.Id == vitalSign.PetId);
             if (pet == null)
                 throw new NotFoundException("Pet for this vital signs does not exist!");
 
@@ -35,8 +35,8 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<PetDto?> GetPetByIdAsync(int petId)
         {
-            var vitalSignWithPet = _vitalSignRep.GetAll().Include(x => x.Pet)
-                .FirstOrDefault(x => x.Pet.Id == petId);
+            var vitalSignWithPet = (await _vitalSignRep.GetAllAsync(x => x.Pet.Id == petId))
+                .FirstOrDefault();
 
             if (vitalSignWithPet == null)
                 throw new NotFoundException("This pet does not exist!");
@@ -46,8 +46,8 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<VitalSignDto?> GetVitalSignByIdAsync(int vitalSignId)
         {
-            var vitalSign = _vitalSignRep.GetAll().Include(x => x.Pet)
-                .FirstOrDefault(x => x.Id == vitalSignId);
+            var vitalSign = (await _vitalSignRep.GetAllAsync(x => x.Id == vitalSignId))
+                .FirstOrDefault();
 
             if (vitalSign == null)
                 throw new NotFoundException("This vital sign does not exist!");

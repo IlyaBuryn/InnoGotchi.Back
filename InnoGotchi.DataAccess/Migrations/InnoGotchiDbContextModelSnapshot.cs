@@ -22,6 +22,21 @@ namespace InnoGotchi.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("BodyPartPet", b =>
+                {
+                    b.Property<int>("BodyPartsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PetsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("BodyPartsId", "PetsId");
+
+                    b.HasIndex("PetsId");
+
+                    b.ToTable("BodyPartPet");
+                });
+
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPart", b =>
                 {
                     b.Property<int>("Id")
@@ -30,15 +45,13 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("BodyPartTypeId")
+                    b.Property<int>("BodyPartTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -46,6 +59,36 @@ namespace InnoGotchi.DataAccess.Migrations
                     b.HasIndex("BodyPartTypeId");
 
                     b.ToTable("BodyParts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BodyPartTypeId = 1,
+                            Color = "#ffffff",
+                            Image = "testbody_1.png"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BodyPartTypeId = 2,
+                            Color = "#ffffff",
+                            Image = "testnose_1.png"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BodyPartTypeId = 3,
+                            Color = "#ffffff",
+                            Image = "testmouth_1.png"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BodyPartTypeId = 4,
+                            Color = "#ffffff",
+                            Image = "testeye_1.png"
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPartType", b =>
@@ -63,6 +106,28 @@ namespace InnoGotchi.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BodyPartTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Body"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Nose"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Mouth"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Eye"
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Collaborator", b =>
@@ -73,17 +138,17 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("FarmId")
+                    b.Property<int>("FarmId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("IdentityUserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FarmId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("IdentityUserId");
 
                     b.ToTable("Collaborators");
                 });
@@ -96,18 +161,37 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("IdentityUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("IdentityUserId")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Farms");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IdentityUserId = 1,
+                            Name = "ConfTestFarm_1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IdentityUserId = 2,
+                            Name = "ConfTestFarm_2"
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityRole", b =>
@@ -120,11 +204,24 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
                     b.ToTable("IdentityRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "User"
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityUser", b =>
@@ -135,6 +232,9 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("IdentityRoleId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
@@ -143,23 +243,53 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Surname")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex("IdentityRoleId");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("IdentityUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IdentityRoleId = 1,
+                            Name = "Ilya",
+                            Password = "admin",
+                            Username = "admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IdentityRoleId = 2,
+                            Name = "ConfName1",
+                            Password = "123456",
+                            Surname = "ConfSurname1",
+                            Username = "ConfUser1@m.com"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IdentityRoleId = 2,
+                            Name = "ConfName2",
+                            Password = "234567",
+                            Surname = "ConfSurname2",
+                            Username = "ConfUser2@m.com"
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Pet", b =>
@@ -170,41 +300,50 @@ namespace InnoGotchi.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("BodyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("EyeId")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GetDate()");
 
                     b.Property<int>("FarmId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MouthId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("NoseId")
-                        .HasColumnType("int");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BodyId");
-
-                    b.HasIndex("EyeId");
-
                     b.HasIndex("FarmId");
 
-                    b.HasIndex("MouthId");
-
-                    b.HasIndex("NoseId");
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Pets");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FarmId = 1,
+                            Name = "ConfTestName_1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FarmId = 1,
+                            Name = "ConfTestName_2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreationDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FarmId = 2,
+                            Name = "ConfTestName_3"
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.VitalSign", b =>
@@ -216,32 +355,87 @@ namespace InnoGotchi.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("HappinessDaysCount")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("HungerLevel")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<bool>("IsAlive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<int>("PetId")
                         .HasColumnType("int");
 
                     b.Property<int>("ThirsyLevel")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PetId");
+                    b.HasIndex("PetId")
+                        .IsUnique();
 
                     b.ToTable("VitalSigns");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            HappinessDaysCount = 0,
+                            HungerLevel = 0,
+                            IsAlive = false,
+                            PetId = 1,
+                            ThirsyLevel = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            HappinessDaysCount = 1,
+                            HungerLevel = 1,
+                            IsAlive = false,
+                            PetId = 2,
+                            ThirsyLevel = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            HappinessDaysCount = 5,
+                            HungerLevel = 2,
+                            IsAlive = false,
+                            PetId = 3,
+                            ThirsyLevel = 3
+                        });
+                });
+
+            modelBuilder.Entity("BodyPartPet", b =>
+                {
+                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", null)
+                        .WithMany()
+                        .HasForeignKey("BodyPartsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InnoGotchi.DataAccess.Models.Pet", null)
+                        .WithMany()
+                        .HasForeignKey("PetsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPart", b =>
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.BodyPartType", "BodyPartType")
                         .WithMany()
-                        .HasForeignKey("BodyPartTypeId");
+                        .HasForeignKey("BodyPartTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("BodyPartType");
                 });
@@ -250,11 +444,13 @@ namespace InnoGotchi.DataAccess.Migrations
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.Farm", "Farm")
                         .WithMany()
-                        .HasForeignKey("FarmId");
+                        .HasForeignKey("FarmId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("InnoGotchi.DataAccess.Models.IdentityUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("IdentityUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -265,20 +461,20 @@ namespace InnoGotchi.DataAccess.Migrations
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Farm", b =>
                 {
-                    b.HasOne("InnoGotchi.DataAccess.Models.IdentityUser", "User")
+                    b.HasOne("InnoGotchi.DataAccess.Models.IdentityUser", "IdentityUser")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("IdentityUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("IdentityUser");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityUser", b =>
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.IdentityRole", "Role")
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("IdentityRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -287,37 +483,13 @@ namespace InnoGotchi.DataAccess.Migrations
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Pet", b =>
                 {
-                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", "Body")
-                        .WithMany()
-                        .HasForeignKey("BodyId");
-
-                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", "Eye")
-                        .WithMany()
-                        .HasForeignKey("EyeId");
-
                     b.HasOne("InnoGotchi.DataAccess.Models.Farm", "Farm")
                         .WithMany("Pets")
                         .HasForeignKey("FarmId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", "Mouth")
-                        .WithMany()
-                        .HasForeignKey("MouthId");
-
-                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", "Nose")
-                        .WithMany()
-                        .HasForeignKey("NoseId");
-
-                    b.Navigation("Body");
-
-                    b.Navigation("Eye");
-
                     b.Navigation("Farm");
-
-                    b.Navigation("Mouth");
-
-                    b.Navigation("Nose");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.VitalSign", b =>

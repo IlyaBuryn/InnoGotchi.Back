@@ -1,8 +1,13 @@
 ﻿using InnoGotchi.API.Responses;
+using InnoGotchi.API.Settings;
 using InnoGotchi.BusinessLogic.Dto;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
+using InnoGotchi.BusinessLogic.Services;
+using InnoGotchi.DataAccess.Components;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace InnoGotchi.API.Controllers
 {
@@ -25,43 +30,88 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateFarm([FromBody] FarmDto farm)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                var errors = ModelState.Values.
-                    Where(v => v is not null && v.Errors.Count > 0).
-                SelectMany(v => v.Errors).Select(err => err.ErrorMessage);
-
-                return BadRequest(new ErrorResponse { Errors = errors });
+                int? response = await _farmService.CreateFarmAsync(farm);
+                return Ok(response);
             }
-
-            int? createdFarmId = await _farmService.CreateNewFarmAsync(farm);
-            return Ok(createdFarmId);
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponse(ex.Message));
+            }
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFarm([FromRoute] int id)
         {
-            await _farmService.DeleteFarmAsync(id);
-
-            return Ok();
+            try
+            {
+                var response = await _farmService.DeleteFarmAsync(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorResponse(ex.Message));
+            }
         }
 
+        [HttpPut]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateFarm([FromBody] FarmDto farmToUpdate)
+        {
+            try
+            {
+                var response = await _farmService.UpdateFarmAsync(farmToUpdate);
+                return Ok(response);
+            }
+            catch (DataValidationException ex)
+            {
+                return BadRequest(new ErrorResponse(ex.Message));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new ErrorResponse(ex.Message));
+            }
+        }
 
-        [HttpGet("{id}")]
+        [HttpGet("farm/{id}")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(PetDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetFarmById([FromRoute] int id)
+        public async Task<IActionResult> GetFarmById([FromRoute] int farmId)
         {
-            var pet = await _farmService.GetFarmByIdAsync(id);
+            try
+            {
+                var response = await _farmService.GetFarmByIdAsync(farmId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorResponse(ex.Message));
+            }
+        }
 
-            if (pet is null)
-                return NotFound(new ErrorResponse { Errors = new List<string> { "Farm with the specified id not found!" } });
-
-            return Ok(pet);
+        [HttpGet("user/{id}")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(PetDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetFarmByUserId([FromRoute] int userId)
+        {
+            try
+            {
+                var response = await _farmService.GetFarmByUserIdAsync(userId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorResponse(ex.Message));
+            }
         }
     }
 }

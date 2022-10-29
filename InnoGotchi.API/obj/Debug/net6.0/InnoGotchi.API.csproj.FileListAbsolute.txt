@@ -67,3 +67,10 @@ E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.genruntimeconfig.cache
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\ref\InnoGotchi.API.dll
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\FluentValidation.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\FluentValidation.AspNetCore.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\FluentValidation.DependencyInjectionExtensions.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Microsoft.Extensions.DependencyModel.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Scrutor.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Swashbuckle.AspNetCore.Filters.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Swashbuckle.AspNetCore.Filters.Abstractions.dll

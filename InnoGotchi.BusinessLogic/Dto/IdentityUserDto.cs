@@ -7,6 +7,6 @@
         public string? Name { get; set; }
         public string? Surname { get; set; }
         public string? Image { get; set; }
-        public int RoleId { get; set; }
+        public int IdentityRoleId { get; set; }
     }
 }

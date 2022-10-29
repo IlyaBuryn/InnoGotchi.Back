@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace InnoGotchi.BusinessLogic.Components
+namespace InnoGotchi.DataAccess.Components
 {
     public class Page<T> : List<T> where T : class
     {
@@ -11,8 +11,6 @@ namespace InnoGotchi.BusinessLogic.Components
         private Page(List<T> items, int totalCount, int pageNumber, int pageSize)
         {
             (PageNumber, PageSize, TotalCount) = (pageNumber, pageSize, totalCount);
-
-            // Derived base class method
             AddRange(items);
         }
 

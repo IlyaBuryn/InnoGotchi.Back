@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace InnoGotchi.DataAccess.Models
+﻿namespace InnoGotchi.DataAccess.Models
 {
     public class IdentityUser : EntityBase
     {
@@ -9,6 +7,8 @@ namespace InnoGotchi.DataAccess.Models
         public string? Name { get; set; }
         public string? Surname { get; set; }
         public string? Image { get; set; }
-        public IdentityRole Role { get; set; }
+        public int IdentityRoleId { get; set; }
+
+        public virtual IdentityRole Role { get; set; }
     }
 }

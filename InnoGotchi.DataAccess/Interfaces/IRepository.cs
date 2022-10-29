@@ -1,4 +1,6 @@
-﻿using InnoGotchi.DataAccess.Models;
+﻿using InnoGotchi.DataAccess.Components;
+using InnoGotchi.DataAccess.Models;
+using System.Linq.Expressions;
 
 namespace InnoGotchi.DataAccess.Interfaces
 {
@@ -6,8 +8,10 @@ namespace InnoGotchi.DataAccess.Interfaces
     {
         public Task<int?> AddAsync(T entity);
         public Task<bool> RemoveAsync(int id);
-        public Task UpdateAsync(T entity);
-        public IQueryable<T> GetAll();
+        public Task<bool> UpdateAsync(T entity);
+        public Task<T> GetOneAsync(Expression<Func<T, bool>>? predicate = null);
+        public Task<IQueryable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null);
+        public Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null);
         public Task<T?> GetByIdAsync(int id);
     }
 }
