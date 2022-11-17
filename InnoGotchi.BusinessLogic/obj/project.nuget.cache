@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "yweqzevnp84cwv5sGRHE8Z6vfbiymkF78kw27aeKNtpzN4Q8rQrEnPFjyBPnwbGQKYxQUNy2nRZc5tCbmR55qw==",
+  "dgSpecHash": "XuZnUBOhp1TM/z2IWIDpiiq8Wf34TE3Shem943INmXoSDYc+ppWNZjWelruT07qNGwkuQXVQtxCGt3rIXWxDYg==",
   "success": true,
   "projectFilePath": "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.BusinessLogic\\InnoGotchi.BusinessLogic.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Isaac\\.nuget\\packages\\automapper\\12.0.0\\automapper.12.0.0.nupkg.sha512",
+    "C:\\Users\\Isaac\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.0\\automapper.extensions.microsoft.dependencyinjection.12.0.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\fluentvalidation\\11.2.2\\fluentvalidation.11.2.2.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\fluentvalidation.aspnetcore\\11.2.2\\fluentvalidation.aspnetcore.11.2.2.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.2.1\\fluentvalidation.dependencyinjectionextensions.11.2.1.nupkg.sha512",

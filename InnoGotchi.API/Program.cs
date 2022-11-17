@@ -6,10 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
@@ -34,16 +39,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddCors();
 
-
-
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddProfile<PetMapProfile>();
-    cfg.AddProfile<FarmMapProfile>();
-    cfg.AddProfile<UserMapProfile>();
-    cfg.AddProfile<RoleMapProfile>();
-    cfg.AddProfile<PageMapProfile>();
-});
 
 builder.Services.ConfigurationBusinessLogicManagers(
     builder.Configuration.GetConnectionString("InnoGotchiDbConnection"));
@@ -71,7 +66,6 @@ app.UseCors(x => x
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.UseMiddleware<JwtMiddleware>();
 app.UseEndpoints(x => x.MapControllers());
 
 

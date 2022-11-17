@@ -11,7 +11,9 @@ namespace InnoGotchi.DataAccess.Interfaces
         public Task<bool> UpdateAsync(T entity);
         public Task<T> GetOneAsync(Expression<Func<T, bool>>? predicate = null);
         public Task<IQueryable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null);
-        public Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null);
+        public Task<Page<T>> GetAllAsync(int pageNumber, int pageSize,
+            Expression<Func<T, bool>>? predicate = null,
+            params string[] includeValues);
         public Task<T?> GetByIdAsync(int id);
     }
 }

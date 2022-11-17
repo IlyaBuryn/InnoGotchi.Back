@@ -8,7 +8,13 @@ namespace InnoGotchi.BusinessLogic.MappingProfiles
     {
         public PetMapProfile()
         {
-            CreateMap<Pet, PetDto>().ReverseMap();
+            CreateMap<Pet, PetDto>()    
+                .ForMember(dto => dto.BodyParts, opt => opt.MapFrom(ent => ent.BodyParts))
+                .ForMember(dto => dto.VitalSign, opt => opt.MapFrom(ent => ent.VitalSign))
+                .ReverseMap();
+
+            CreateMap<BodyPart, BodyPartDto>().ReverseMap();
+            CreateMap<VitalSign, VitalSignDto>().ReverseMap();
         }
     }
 }

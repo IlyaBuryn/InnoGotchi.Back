@@ -1,7 +1,7 @@
 ﻿using InnoGotchi.API.Responses;
-using InnoGotchi.BusinessLogic.AuthModels;
+using InnoGotchi.BusinessLogic.AuthDto;
+using InnoGotchi.BusinessLogic.Components;
 using InnoGotchi.BusinessLogic.Dto;
-using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ namespace InnoGotchi.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("innogotchi/[controller]")]
+    [Route("innogotchi/[controller]")]  
     public class AccountController : ControllerBase
     {
         private readonly IIdentityService _identityService;
@@ -23,23 +23,26 @@ namespace InnoGotchi.API.Controllers
 
         [HttpPost("auth")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticateResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> SignIn([FromBody] AuthenticateRequest model)
+        public async Task<IActionResult> SignIn([FromBody] AuthenticateRequestDto model)
         {
-            var response = await _identityService.AuthenticateAsync(model);
-
-            if (response == null)
-                return BadRequest(new { message = "Username or password is incorrect!" });
-
-            return Ok(response);
+            try
+            {
+                var response = await _identityService.AuthenticateAsync(model);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new ErrorResponse("Username or password is incorrect!"));
+            }
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(AuthenticateResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticateResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SignUp([FromBody] IdentityUserDto model)
@@ -55,17 +58,16 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-
-
-        [HttpPut]
+        [HttpGet("{username}")]
         [Authorize]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AuthenticateResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdatePassword([FromBody] IdentityUserDto model)
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetUserData([FromRoute] string username)
         {
             try
             {
-                var response = await _identityService.UpdateUserAsync(model);
+                var response = await _identityService.GetReadonlyUserData(username);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -74,6 +76,43 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
+
+
+        [HttpPut("password")]
+        [Authorize]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdatePassword([FromBody] IdentityUserDto model)
+        {
+            try
+            {
+                var response = await _identityService.UpdateUserAsync(model, UpdateType.password);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpPut("userinfo")]
+        [Authorize]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateUserData([FromBody] IdentityUserDto model)
+        {
+            try
+            {
+                var response = await _identityService.UpdateUserAsync(model, UpdateType.user);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponse(ex.Message));
+            }
+        }
 
     }
 }

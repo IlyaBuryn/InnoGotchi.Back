@@ -19,6 +19,7 @@ namespace InnoGotchi.DataAccess.Components
             services.AddTransient<IValidator<Pet>, PetValidator>();
             services.AddTransient<IValidator<VitalSign>, VitalSignValidator>();
             services.AddTransient<IValidator<BodyPart>, BodyPartValidator>();
+            services.AddTransient<IValidator<Feed>, FeedValidator>();
         }
     }
 }

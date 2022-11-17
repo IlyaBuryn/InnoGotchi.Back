@@ -42,14 +42,19 @@ namespace InnoGotchi.DataAccess.Repositories
             return _dbSet.OrderByDescending(e => e.Id).Where(predicate);
         }
 
-        public async Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null)
+        public async Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null, params string[] includeValues)
         {
+            IQueryable<T> set = _dbSet.OrderByDescending(e => e.Id);
+            for (int i = 0; i < includeValues.Length; i++)
+                set = set.Include(includeValues[i]);
+
             if (predicate == null)
                 return await Page<T>.CreateFromQueryAsync(
-                    _dbSet.OrderByDescending(e => e.Id), pageNumber, pageSize);
-            
-            return await Page<T>.CreateFromQueryAsync(
-                _dbSet.OrderByDescending(e => e.Id).Where(predicate), pageNumber, pageSize);
+                    set, pageNumber, pageSize);
+
+            set = set.Where(predicate);
+
+            return await Page<T>.CreateFromQueryAsync(set, pageNumber, pageSize);
         }
 
         public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(new object[] { id });

@@ -8,7 +8,10 @@ namespace InnoGotchi.BusinessLogic.MappingProfiles
     {
         public BodyPartMapProfile()
         {
-            CreateMap<BodyPart, BodyPartDto>().ReverseMap();
+            CreateMap<BodyPart, BodyPartDto>()
+                .ForMember(dto => dto.BodyPartType, opt => opt.MapFrom(ent => ent.BodyPartType))
+                .ReverseMap();
+            CreateMap<BodyPartType, BodyPartTypeDto>().ReverseMap();
         }
     }
 }

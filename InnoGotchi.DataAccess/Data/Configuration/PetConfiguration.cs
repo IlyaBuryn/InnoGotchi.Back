@@ -8,12 +8,17 @@ namespace InnoGotchi.DataAccess.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Pet> builder)
         {
-            builder.HasKey(e => e.Id);
-            builder.Property(e => e.Id).ValueGeneratedOnAdd();
-            builder.HasIndex(e => e.Name).IsUnique();
+            builder.HasKey(p => p.Id);
+            builder.Property(p => p.Id).ValueGeneratedOnAdd();
+            builder.HasIndex(p => p.Name).IsUnique();
             builder.Property(p => p.Name).IsRequired().HasMaxLength(64);
-            builder.Property(e => e.FarmId).IsRequired();
-            builder.Property(e => e.CreationDate).IsRequired().HasDefaultValueSql("GetDate()");
+            builder.Property(p => p.FarmId).IsRequired();
+            builder.Property(p => p.CreationDate).IsRequired().HasDefaultValueSql("GetDate()");
+            builder.HasMany(p => p.BodyParts).WithMany(bp => bp.Pets).UsingEntity<BodyPartPet>(
+                x => x.HasOne(x => x.BodyPart)
+                .WithMany().HasForeignKey(x => x.BodyPartsId),
+                x => x.HasOne(x => x.Pet)
+                .WithMany().HasForeignKey(x => x.PetsId));
 
             builder.HasData
             (

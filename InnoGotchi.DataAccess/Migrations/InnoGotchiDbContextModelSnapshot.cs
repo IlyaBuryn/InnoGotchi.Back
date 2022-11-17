@@ -22,21 +22,6 @@ namespace InnoGotchi.DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("BodyPartPet", b =>
-                {
-                    b.Property<int>("BodyPartsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PetsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("BodyPartsId", "PetsId");
-
-                    b.HasIndex("PetsId");
-
-                    b.ToTable("BodyPartPet");
-                });
-
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPart", b =>
                 {
                     b.Property<int>("Id")
@@ -89,6 +74,29 @@ namespace InnoGotchi.DataAccess.Migrations
                             Color = "#ffffff",
                             Image = "testeye_1.png"
                         });
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPartPet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("BodyPartsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PetsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BodyPartsId");
+
+                    b.HasIndex("PetsId");
+
+                    b.ToTable("BodyPartPets");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPartType", b =>
@@ -192,6 +200,42 @@ namespace InnoGotchi.DataAccess.Migrations
                             IdentityUserId = 2,
                             Name = "ConfTestFarm_2"
                         });
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.Feed", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("FeedTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GetDate()");
+
+                    b.Property<int>("FoodCount")
+                        .HasMaxLength(3)
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdentityUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WaterCount")
+                        .HasMaxLength(3)
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdentityUserId");
+
+                    b.HasIndex("PetId");
+
+                    b.ToTable("FeedsInfo");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityRole", b =>
@@ -414,21 +458,6 @@ namespace InnoGotchi.DataAccess.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BodyPartPet", b =>
-                {
-                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", null)
-                        .WithMany()
-                        .HasForeignKey("BodyPartsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("InnoGotchi.DataAccess.Models.Pet", null)
-                        .WithMany()
-                        .HasForeignKey("PetsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPart", b =>
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.BodyPartType", "BodyPartType")
@@ -438,6 +467,25 @@ namespace InnoGotchi.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("BodyPartType");
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPartPet", b =>
+                {
+                    b.HasOne("InnoGotchi.DataAccess.Models.BodyPart", "BodyPart")
+                        .WithMany()
+                        .HasForeignKey("BodyPartsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InnoGotchi.DataAccess.Models.Pet", "Pet")
+                        .WithMany()
+                        .HasForeignKey("PetsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BodyPart");
+
+                    b.Navigation("Pet");
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Collaborator", b =>
@@ -470,6 +518,24 @@ namespace InnoGotchi.DataAccess.Migrations
                     b.Navigation("IdentityUser");
                 });
 
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.Feed", b =>
+                {
+                    b.HasOne("InnoGotchi.DataAccess.Models.IdentityUser", "IdentityUser")
+                        .WithMany()
+                        .HasForeignKey("IdentityUserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("InnoGotchi.DataAccess.Models.Pet", "Pet")
+                        .WithMany()
+                        .HasForeignKey("PetId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("IdentityUser");
+
+                    b.Navigation("Pet");
+                });
+
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.IdentityUser", b =>
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.IdentityRole", "Role")
@@ -495,8 +561,8 @@ namespace InnoGotchi.DataAccess.Migrations
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.VitalSign", b =>
                 {
                     b.HasOne("InnoGotchi.DataAccess.Models.Pet", "Pet")
-                        .WithMany()
-                        .HasForeignKey("PetId")
+                        .WithOne("VitalSign")
+                        .HasForeignKey("InnoGotchi.DataAccess.Models.VitalSign", "PetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -506,6 +572,12 @@ namespace InnoGotchi.DataAccess.Migrations
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.Farm", b =>
                 {
                     b.Navigation("Pets");
+                });
+
+            modelBuilder.Entity("InnoGotchi.DataAccess.Models.Pet", b =>
+                {
+                    b.Navigation("VitalSign")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using InnoGotchi.BusinessLogic.Components;
 using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
-using InnoGotchi.DataAccess.Components;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InnoGotchi.BusinessLogic.Services
 {
@@ -14,11 +13,13 @@ namespace InnoGotchi.BusinessLogic.Services
     {
         private readonly IRepository<Pet> _petRep;
         private readonly IRepository<Farm> _farmRep;
+        private readonly IRepository<BodyPartPet> _relationRep;
         private readonly IValidator<Pet> _petValidator;
         private readonly IMapper _mapper;
 
         public PetService(IRepository<Pet> petRep,
             IRepository<Farm> farmRep,
+            IRepository<BodyPartPet> relationRep,
             IValidator<Pet> petValidator,
             IMapper mapper)
         {
@@ -26,6 +27,7 @@ namespace InnoGotchi.BusinessLogic.Services
             _farmRep = farmRep;
             _petRep = petRep;
             _mapper = mapper;
+            _relationRep = relationRep;
         }
 
         public async Task<int?> AddNewPetAsync(PetDto petToAdd)
@@ -35,44 +37,69 @@ namespace InnoGotchi.BusinessLogic.Services
             if (!validationResult.IsValid)
                 throw new DataValidationException();
 
-            var pet = await _petRep.GetOneAsync(x => x.Name == petToAdd.Name);
-            if (pet != null)
+            var petExist = await _petRep.GetOneAsync(x => x.Name == petToAdd.Name);
+            if (petExist != null)
                 throw new DataValidationException("This pet is already exist!");
 
             var farm = await _farmRep.GetByIdAsync(petToAdd.FarmId);
             if (farm == null)
                 throw new NotFoundException(nameof(farm));
 
-            petToAdd.CreationDate = DateTime.Now;
+            var pet = new Pet()
+            {
+                Name = petToAdd.Name,
+                CreationDate = DateTime.Now,
+                FarmId = petToAdd.FarmId,
+                VitalSign = new VitalSign()
+            };
 
-            return await _petRep.AddAsync(_mapper.Map<Pet>(petToAdd));
+            var resultId = await _petRep.AddAsync(pet);
+
+            if (resultId != null && resultId != 0)
+            {
+                foreach (var item in _mapper.Map<ICollection<BodyPart>>(petToAdd.BodyParts))
+                    await _relationRep.AddAsync(new BodyPartPet() { BodyPartsId = item.Id, PetsId = (int)resultId });
+            }
+
+            return resultId;
         }
 
         public async Task<PetDto?> GetPetByIdAsync(int petId)
         {
-            var pet = await _petRep.GetByIdAsync(petId);
+            var pet = (await _petRep.GetAllAsync(x => x.Id == petId))
+                .Include(x => x.BodyParts)
+                .Include(x => x.VitalSign)
+                .FirstOrDefault();
+
             if (pet == null)
                 throw new NotFoundException(nameof(pet));
 
             return _mapper.Map<PetDto>(pet);
         }
 
-        public async Task<Page<PetDto>> GetPetsAsync(int pageNumber, int pageSize)
+        public async Task<List<PetDto>> GetPetsAsyncAsPage(int pageNumber, int pageSize)
         {
             if (pageSize <= 0 || pageNumber <= 0)
                 throw new DataValidationException("Incorrect page number and(or) size provided!");
 
-            var pets = await _petRep.GetAllAsync(pageNumber, pageSize);
-            return _mapper.Map<Page<Pet>, Page<PetDto>>(pets);
+            var pets = (await _petRep.GetAllAsync(pageNumber, pageSize, x => x.VitalSign.IsAlive, nameof(Pet.BodyParts))).ToList();
+            return _mapper.Map<List<PetDto>>(pets);
         }
 
-        public async Task<IQueryable<PetDto>> GetPetsByFarmIdAsync(int farmId)
+        public async Task<int> GetAllPetsCount()
         {
-            var pets = await _petRep.GetAllAsync(x => x.FarmId == farmId);
+            return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive)).Count();
+        }
+
+        public async Task<List<PetDto>> GetPetsByFarmIdAsync(int farmId)
+        {
+            var pets = (await _petRep.GetAllAsync(x => x.FarmId == farmId))
+                .Include(x => x.BodyParts)
+                .Include(x => x.VitalSign);
             if (pets == null)
                 throw new NotFoundException(nameof(Farm));
 
-            return _mapper.Map<IQueryable<PetDto>>(pets);
+            return _mapper.Map<List<PetDto>>(pets);
         }
 
         public async Task<bool> RemovePetAsync(int petId)

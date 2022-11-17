@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using InnoGotchi.BusinessLogic.AuthModels;
+using InnoGotchi.BusinessLogic.AuthDto;
 using InnoGotchi.BusinessLogic.Components;
 using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
@@ -39,22 +39,22 @@ namespace InnoGotchi.BusinessLogic.Services
             _mapper = mapper;
         }
 
-        public async Task<AuthenticateResponse> AuthenticateAsync(AuthenticateRequest model)
+        public async Task<AuthenticateResponseDto> AuthenticateAsync(AuthenticateRequestDto model)
         {
             var user = (await _userRep.GetAllAsync(x => x.Username == model.Username
                 && x.Password == model.Password)).Include(u => u.Role).FirstOrDefault();
             if (user == null)
-                throw new AuthenticateException();
+                throw new NotFoundException(nameof(user.Role));
 
             if (user.Role == null)
                 throw new NotFoundException(nameof(user.Role));
 
             var token = CreateJwtToken(user);
 
-            return new AuthenticateResponse(user, token);
+            return new AuthenticateResponseDto(user, token);
         }
 
-        public async Task<AuthenticateResponse> RegisterAsync(IdentityUserDto userToRegister)
+        public async Task<AuthenticateResponseDto> RegisterAsync(IdentityUserDto userToRegister)
         {
             var validationResult = await _userValidator.ValidateAsync(_mapper.Map<IdentityUser>(userToRegister));
             if (!validationResult.IsValid)
@@ -78,7 +78,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
             var addedUser = await _userRep.AddAsync(user);
 
-            var response = await AuthenticateAsync(new AuthenticateRequest
+            var response = await AuthenticateAsync(new AuthenticateRequestDto
             {
                 Username = user.Username,
                 Password = user.Password,
@@ -86,6 +86,22 @@ namespace InnoGotchi.BusinessLogic.Services
                 Surname = user.Surname,
             });
             return response;
+        }
+
+        public async Task<AuthenticateResponseDto> GetReadonlyUserData(string username)
+        {
+            var user = await _userRep.GetOneAsync(x => x.Username == username);
+            if (user == null)
+                throw new NotFoundException(nameof(user));
+
+            return new AuthenticateResponseDto()
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Surname = user.Surname,
+                Image = user.Image,
+                Username = user.Username,
+            };
         }
 
         public async Task<int?> CreateRoleAsync(IdentityRoleDto roleToCreate)
@@ -101,21 +117,28 @@ namespace InnoGotchi.BusinessLogic.Services
             return await _roleRep.AddAsync(_mapper.Map<IdentityRole>(roleToCreate));
         }
 
-        public async Task<bool> UpdateUserAsync(IdentityUserDto userToUpdate)
+        public async Task<bool> UpdateUserAsync(IdentityUserDto userToUpdate, UpdateType updateType)
         {
-            var validationResult = await _userValidator.ValidateAsync(_mapper.Map<IdentityUser>(userToUpdate));
-
-            if (!validationResult.IsValid)
-                throw new DataValidationException();
-
-            var user = await TryFindUser(userToUpdate);
+            var user = (await _userRep.GetAllAsync(x => x.Id == userToUpdate.Id && x.Username == userToUpdate.Username))
+                .Include(x => x.Role)
+                .FirstOrDefault();
             if (user == null)
                 throw new NotFoundException(nameof(user));
 
-            user.Password = userToUpdate.Password;
-            user.Name = userToUpdate.Name;
-            user.Surname = userToUpdate.Surname;
-            user.Image = userToUpdate.Image;
+            if (updateType == UpdateType.user)
+            {
+                user.Name = userToUpdate.Name;
+                user.Surname = userToUpdate.Surname;
+                user.Image = userToUpdate.Image;
+            }
+            if (updateType == UpdateType.password)
+            {
+                var validationResult = await _userValidator.ValidateAsync(_mapper.Map<IdentityUser>(userToUpdate));
+                if (!validationResult.IsValid)
+                    throw new DataValidationException();
+
+                user.Password = userToUpdate.Password;
+            }
 
             return await _userRep.UpdateAsync(_mapper.Map<IdentityUser>(user));
         }
@@ -141,14 +164,6 @@ namespace InnoGotchi.BusinessLogic.Services
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
-        }
-
-        private async Task<IdentityUser?> TryFindUser(IdentityUserDto userToFind)
-        {
-            return (await _userRep.GetAllAsync(x => x.Password == userToFind.Password
-                && x.Username == userToFind.Username))
-                .Include(x => x.Role)
-                .FirstOrDefault();
         }
     }
 }

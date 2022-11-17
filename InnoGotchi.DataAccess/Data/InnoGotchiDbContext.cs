@@ -19,6 +19,8 @@ namespace InnoGotchi.DataAccess.Data
         public DbSet<VitalSign> VitalSigns { get; set; }
         public DbSet<BodyPartType> BodyPartTypes { get; set; }
         public DbSet<BodyPart> BodyParts { get; set; }
+        public DbSet<BodyPartPet> BodyPartPets { get; set; }
+        public DbSet<Feed> FeedsInfo { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +32,7 @@ namespace InnoGotchi.DataAccess.Data
             modelBuilder.ApplyConfiguration(new VitalSignConfiguration());
             modelBuilder.ApplyConfiguration(new BodyPartTypeConfiguration());
             modelBuilder.ApplyConfiguration(new BodyPartConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedConfiguration());
         }
     }
 }

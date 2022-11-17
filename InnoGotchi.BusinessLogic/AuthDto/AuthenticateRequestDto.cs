@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace InnoGotchi.BusinessLogic.AuthModels
+namespace InnoGotchi.BusinessLogic.AuthDto
 {
-    public class AuthenticateRequest
+    public class AuthenticateRequestDto
     {
         [Required]
         public string Username { get; set; }
