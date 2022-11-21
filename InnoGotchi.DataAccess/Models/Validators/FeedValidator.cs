@@ -6,8 +6,8 @@ namespace InnoGotchi.DataAccess.Models.Validators
     {
         public FeedValidator()
         {
-            RuleFor(p => p.FoodCount).NotEmpty().InclusiveBetween(1, 3);
-            RuleFor(p => p.WaterCount).NotEmpty().InclusiveBetween(1, 3);
+            RuleFor(p => p.FoodCount).InclusiveBetween(0, 3);
+            RuleFor(p => p.WaterCount).InclusiveBetween(0, 3);
         }
     }
 }

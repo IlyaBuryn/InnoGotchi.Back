@@ -10,7 +10,7 @@ namespace InnoGotchi.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("innogotchi/[controller]")]  
+    [Route("innogotchi/account")]  
     public class AccountController : ControllerBase
     {
         private readonly IIdentityService _identityService;
@@ -21,7 +21,7 @@ namespace InnoGotchi.API.Controllers
         }
 
 
-        [HttpPost("auth")]
+        [HttpPost("login")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(AuthenticateResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -78,7 +78,7 @@ namespace InnoGotchi.API.Controllers
 
 
 
-        [HttpPut("password")]
+        [HttpPut("change-password")]
         [Authorize]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -96,7 +96,7 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpPut("userinfo")]
+        [HttpPut("change-user-info")]
         [Authorize]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]

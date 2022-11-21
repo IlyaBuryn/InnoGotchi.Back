@@ -5,6 +5,7 @@ using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InnoGotchi.BusinessLogic.Services
 {
@@ -64,7 +65,16 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<List<CollaboratorDto>> GetAllCollaboratorsByFarmAsync(int farmId)
         {
-            var collabs = await _collabRep.GetAllAsync(x => x.FarmId == farmId);
+            var collabs = (await _collabRep.GetAllAsync(x => x.FarmId == farmId)).Include(x => x.Farm);
+            if (collabs == null)
+                throw new NotFoundException(nameof(collabs));
+
+            return _mapper.Map<List<CollaboratorDto>>(collabs);
+        }
+
+        public async Task<List<CollaboratorDto>> GetAllCollaboratorsByUserAsync(int userId)
+        {
+            var collabs = (await _collabRep.GetAllAsync(x => x.IdentityUserId == userId)).Include(x => x.Farm);
             if (collabs == null)
                 throw new NotFoundException(nameof(collabs));
 

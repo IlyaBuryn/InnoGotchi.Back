@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using InnoGotchi.BusinessLogic.Components;
 using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
+using InnoGotchi.DataAccess.Components;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
@@ -77,13 +79,45 @@ namespace InnoGotchi.BusinessLogic.Services
             return _mapper.Map<PetDto>(pet);
         }
 
-        public async Task<List<PetDto>> GetPetsAsyncAsPage(int pageNumber, int pageSize)
+        public async Task<List<PetDto>> GetPetsAsyncAsPage(int pageNumber, int pageSize, SortFilter sortFilter)
         {
             if (pageSize <= 0 || pageNumber <= 0)
                 throw new DataValidationException("Incorrect page number and(or) size provided!");
 
-            var pets = (await _petRep.GetAllAsync(pageNumber, pageSize, x => x.VitalSign.IsAlive, nameof(Pet.BodyParts))).ToList();
-            return _mapper.Map<List<PetDto>>(pets);
+            IQueryable<Pet> pets = null;
+            switch (sortFilter)
+            {
+                case SortFilter.ByHappinessDays:
+                    pets = (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                        .Include(x => x.BodyParts)
+                        .Include(x => x.VitalSign).OrderByDescending(x => x.VitalSign.HappinessDaysCount);
+                    break;
+                case SortFilter.ByAge:
+                    pets = (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                        .Include(x => x.BodyParts)
+                        .Include(x => x.VitalSign).OrderByDescending(x => x.CreationDate);
+                    break;
+                case SortFilter.ByHungerLevel:
+                    pets = (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                        .Include(x => x.BodyParts)
+                        .Include(x => x.VitalSign).OrderBy(x => x.VitalSign.HungerLevel);
+                    break;
+                case SortFilter.ByThirstyLevel:
+                    pets = (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                        .Include(x => x.BodyParts)
+                        .Include(x => x.VitalSign).OrderBy(x => x.VitalSign.ThirstyLevel);
+                    break;
+                default:
+                    pets = (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                        .Include(x => x.BodyParts)
+                        .Include(x => x.VitalSign).OrderByDescending(x => x.VitalSign.HappinessDaysCount);
+                    break;
+            }
+
+            var page =  await Page<Pet>.CreateFromQueryAsync(
+                    pets, pageNumber, pageSize);
+
+            return _mapper.Map<List<PetDto>>(page);
         }
 
         public async Task<int> GetAllPetsCount()

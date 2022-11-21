@@ -8,7 +8,7 @@ namespace InnoGotchi.DataAccess.Models.Validators
         {
             RuleFor(v => v.PetId).NotEmpty();
             RuleFor(v => v.HungerLevel).NotEmpty().InclusiveBetween(0, 3);
-            RuleFor(v => v.ThirsyLevel).NotEmpty().InclusiveBetween(0, 3);
+            RuleFor(v => v.ThirstyLevel).NotEmpty().InclusiveBetween(0, 3);
             RuleFor(v => v.HappinessDaysCount).NotEmpty().GreaterThanOrEqualTo(0);
         }
     }

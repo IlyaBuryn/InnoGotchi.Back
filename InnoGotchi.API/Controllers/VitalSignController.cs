@@ -9,7 +9,7 @@ namespace InnoGotchi.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("innogotchi/[controller]")]
+    [Route("innogotchi/vital-sign")]
     public class VitalSignController : ControllerBase
     {
         private readonly IVitalSignService _vitalSignService;
@@ -19,7 +19,7 @@ namespace InnoGotchi.API.Controllers
             _vitalSignService = vitalSignService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -41,7 +41,7 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("update")]
         [Authorize]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -63,15 +63,15 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpGet("vitalsign/{id}")]
+        [HttpGet("{vsId}")]
         [Authorize]
         [ProducesResponseType(typeof(VitalSignDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetVitalSignById([FromRoute] int id)
+        public async Task<IActionResult> GetVitalSignById([FromRoute] int vsId)
         {
             try
             {
-                var response = await _vitalSignService.GetVitalSignByIdAsync(id);
+                var response = await _vitalSignService.GetVitalSignByIdAsync(vsId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -80,15 +80,15 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpGet("pet/{id}")]
+        [HttpGet("pet/{petId}")]
         [Authorize]
         [ProducesResponseType(typeof(VitalSignDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetVitalSignByPetId([FromRoute] int id)
+        public async Task<IActionResult> GetVitalSignByPetId([FromRoute] int petId)
         {
             try
             {
-                var response = await _vitalSignService.GetVitalSignByPetIdAsync(id);
+                var response = await _vitalSignService.GetVitalSignByPetIdAsync(petId);
                 return Ok(response);
             }
             catch (Exception ex)

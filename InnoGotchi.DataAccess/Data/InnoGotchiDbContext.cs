@@ -33,6 +33,7 @@ namespace InnoGotchi.DataAccess.Data
             modelBuilder.ApplyConfiguration(new BodyPartTypeConfiguration());
             modelBuilder.ApplyConfiguration(new BodyPartConfiguration());
             modelBuilder.ApplyConfiguration(new FeedConfiguration());
+            modelBuilder.ApplyConfiguration(new BodyPartPetConfiguration());
         }
     }
 }

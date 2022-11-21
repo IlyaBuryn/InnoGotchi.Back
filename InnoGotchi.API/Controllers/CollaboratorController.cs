@@ -9,7 +9,7 @@ namespace InnoGotchi.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("innogotchi/[controller]")]
+    [Route("innogotchi/collab")]
     public class CollaboratorController : ControllerBase
     {
         private readonly ICollaboratorService _collabService;
@@ -20,7 +20,7 @@ namespace InnoGotchi.API.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -42,7 +42,7 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpDelete("{userId}")]
+        [HttpDelete("delete/{userId}")]
         [Authorize]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -59,15 +59,32 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("farm/{farmId}")]
         [Authorize]
         [ProducesResponseType(typeof(List<CollaboratorDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetCollabs([FromRoute] int id)
+        public async Task<IActionResult> GetCollabsByFarm([FromRoute] int farmId)
         {
             try
             {
-                var response = await _collabService.GetAllCollaboratorsByFarmAsync(id);
+                var response = await _collabService.GetAllCollaboratorsByFarmAsync(farmId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new ErrorResponse(ex.Message));
+            }
+        }
+
+        [HttpGet("user/{userId}")]
+        [Authorize]
+        [ProducesResponseType(typeof(List<CollaboratorDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetCollabsByUser([FromRoute] int userId)
+        {
+            try
+            {
+                var response = await _collabService.GetAllCollaboratorsByUserAsync(userId);
                 return Ok(response);
             }
             catch (Exception ex)

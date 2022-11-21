@@ -13,7 +13,7 @@ namespace InnoGotchi.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("innogotchi/[controller]")]
+    [Route("innogotchi/pet")]
     public class PetsController : ControllerBase
     {
         private readonly IPetService _petService;
@@ -23,7 +23,7 @@ namespace InnoGotchi.API.Controllers
             _petService = petService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         [Authorize]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -45,7 +45,7 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("update")]
         [Authorize]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
@@ -67,7 +67,7 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
@@ -84,15 +84,15 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{petId}")]
         [Authorize]
         [ProducesResponseType(typeof(PetDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPetById([FromRoute] int id)
+        public async Task<IActionResult> GetPetById([FromRoute] int petId)
         {
             try
             {
-                var response = await _petService.GetPetByIdAsync(id);
+                var response = await _petService.GetPetByIdAsync(petId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -101,15 +101,15 @@ namespace InnoGotchi.API.Controllers
             }
         }
 
-        [HttpGet("farm/{id}")]
+        [HttpGet("farm/{farmId}")]
         [Authorize]
         [ProducesResponseType(typeof(List<PetDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPetByFarmId([FromRoute] int id)
+        public async Task<IActionResult> GetPetByFarmId([FromRoute] int farmId)
         {
             try
             {
-                var response = await _petService.GetPetsByFarmIdAsync(id);
+                var response = await _petService.GetPetsByFarmIdAsync(farmId);
                 return Ok(response.ToList());
             }
             catch (NotFoundException ex)
@@ -120,16 +120,32 @@ namespace InnoGotchi.API.Controllers
 
 
 
-        [HttpGet("page/{page}")]
+        [HttpGet("page/{pageNumber}/{sortFilter}")]
         [Authorize]
         [ProducesResponseType(typeof(Page<PetDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetPets([FromRoute] int page, 
-            [FromServices] IOptions<PageSizeSettings> pageSizeSettings)
+        public async Task<IActionResult> GetPets([FromRoute] int pageNumber, 
+            [FromServices] IOptions<PageSizeSettings> pageSizeSettings,[FromRoute] SortFilter sortFilter)
         {
             try
             {
-                var response = await _petService.GetPetsAsyncAsPage(page, pageSizeSettings.Value.PageSize);
+                var response = await _petService.GetPetsAsyncAsPage(pageNumber, pageSizeSettings.Value.PageSize, sortFilter);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponse(ex.Message));
+            }
+        }
+        
+        [HttpGet("all-count")]
+        [ProducesResponseType(typeof(Page<PetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPetsCount()
+        {
+            try
+            {
+                var response = await _petService.GetAllPetsCount();
                 return Ok(response);
             }
             catch (Exception ex)

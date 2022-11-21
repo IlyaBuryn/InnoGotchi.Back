@@ -4,7 +4,6 @@ using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Threading;
 
 namespace InnoGotchi.DataAccess.Repositories
 {

@@ -19,8 +19,8 @@ namespace InnoGotchi.DataAccess.Data.Configuration
                 new IdentityUser()
                 {
                     Id = 1,
-                    Username = "admin",
-                    Password = "admin",
+                    Username = "admin@m.com",
+                    Password = "qweqwe",
                     Name = "Ilya",
                     IdentityRoleId = 1,
                 },

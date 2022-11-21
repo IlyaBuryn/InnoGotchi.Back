@@ -13,7 +13,7 @@ namespace InnoGotchi.DataAccess.Data.Configuration
             builder.HasIndex(v => v.PetId).IsUnique();
             builder.Property(v => v.PetId).IsRequired();
             builder.Property(v => v.HungerLevel).IsRequired().HasDefaultValue(0);
-            builder.Property(v => v.ThirsyLevel).IsRequired().HasDefaultValue(0);
+            builder.Property(v => v.ThirstyLevel).IsRequired().HasDefaultValue(0);
             builder.Property(v => v.HappinessDaysCount).IsRequired().HasDefaultValue(0);
             builder.Property(v => v.IsAlive).IsRequired().HasDefaultValue(true);
 
@@ -28,7 +28,7 @@ namespace InnoGotchi.DataAccess.Data.Configuration
                     Id = 2,
                     PetId = 2,
                     HungerLevel = 1,
-                    ThirsyLevel = 2,
+                    ThirstyLevel = 2,
                     HappinessDaysCount = 1,
                 },
                 new VitalSign()
@@ -36,7 +36,7 @@ namespace InnoGotchi.DataAccess.Data.Configuration
                     Id = 3,
                     PetId = 3,
                     HungerLevel = 2,
-                    ThirsyLevel = 3,
+                    ThirstyLevel = 1,
                     HappinessDaysCount = 5,
                 }
             );

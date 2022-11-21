@@ -50,29 +50,133 @@ namespace InnoGotchi.DataAccess.Migrations
                         {
                             Id = 1,
                             BodyPartTypeId = 1,
-                            Color = "#ffffff",
-                            Image = "testbody_1.png"
+                            Image = "~/images/bodies/body_1.svg"
                         },
                         new
                         {
                             Id = 2,
                             BodyPartTypeId = 2,
-                            Color = "#ffffff",
-                            Image = "testnose_1.png"
+                            Image = "~/images/noses/nose_1.svg"
                         },
                         new
                         {
                             Id = 3,
                             BodyPartTypeId = 3,
-                            Color = "#ffffff",
-                            Image = "testmouth_1.png"
+                            Image = "~/images/mouths/mouth_1.svg"
                         },
                         new
                         {
                             Id = 4,
                             BodyPartTypeId = 4,
-                            Color = "#ffffff",
-                            Image = "testeye_1.png"
+                            Image = "~/images/eyes/eye_1.svg"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            BodyPartTypeId = 1,
+                            Image = "~/images/bodies/body_2.svg"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            BodyPartTypeId = 2,
+                            Image = "~/images/noses/nose_2.svg"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            BodyPartTypeId = 3,
+                            Image = "~/images/mouths/mouth_2.svg"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            BodyPartTypeId = 4,
+                            Image = "~/images/eyes/eye_2.svg"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            BodyPartTypeId = 1,
+                            Image = "~/images/bodies/body_3.svg"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            BodyPartTypeId = 2,
+                            Image = "~/images/noses/nose_3.svg"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            BodyPartTypeId = 3,
+                            Image = "~/images/mouths/mouth_3.svg"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            BodyPartTypeId = 4,
+                            Image = "~/images/eyes/eye_3.svg"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            BodyPartTypeId = 1,
+                            Image = "~/images/bodies/body_4.svg"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            BodyPartTypeId = 2,
+                            Image = "~/images/noses/nose_4.svg"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            BodyPartTypeId = 3,
+                            Image = "~/images/mouths/mouth_4.svg"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            BodyPartTypeId = 4,
+                            Image = "~/images/eyes/eye_4.svg"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            BodyPartTypeId = 1,
+                            Image = "~/images/bodies/body_5.svg"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            BodyPartTypeId = 2,
+                            Image = "~/images/noses/nose_5.svg"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            BodyPartTypeId = 3,
+                            Image = "~/images/mouths/mouth_5.svg"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            BodyPartTypeId = 4,
+                            Image = "~/images/eyes/eye_5.svg"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            BodyPartTypeId = 2,
+                            Image = "~/images/noses/nose_6.svg"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            BodyPartTypeId = 4,
+                            Image = "~/images/eyes/eye_6.svg"
                         });
                 });
 
@@ -97,6 +201,80 @@ namespace InnoGotchi.DataAccess.Migrations
                     b.HasIndex("PetsId");
 
                     b.ToTable("BodyPartPets");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BodyPartsId = 1,
+                            PetsId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BodyPartsId = 2,
+                            PetsId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BodyPartsId = 3,
+                            PetsId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BodyPartsId = 4,
+                            PetsId = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            BodyPartsId = 5,
+                            PetsId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            BodyPartsId = 6,
+                            PetsId = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            BodyPartsId = 7,
+                            PetsId = 2
+                        },
+                        new
+                        {
+                            Id = 8,
+                            BodyPartsId = 8,
+                            PetsId = 2
+                        },
+                        new
+                        {
+                            Id = 9,
+                            BodyPartsId = 9,
+                            PetsId = 3
+                        },
+                        new
+                        {
+                            Id = 10,
+                            BodyPartsId = 10,
+                            PetsId = 3
+                        },
+                        new
+                        {
+                            Id = 11,
+                            BodyPartsId = 11,
+                            PetsId = 3
+                        },
+                        new
+                        {
+                            Id = 12,
+                            BodyPartsId = 12,
+                            PetsId = 3
+                        });
                 });
 
             modelBuilder.Entity("InnoGotchi.DataAccess.Models.BodyPartType", b =>
@@ -313,8 +491,8 @@ namespace InnoGotchi.DataAccess.Migrations
                             Id = 1,
                             IdentityRoleId = 1,
                             Name = "Ilya",
-                            Password = "admin",
-                            Username = "admin"
+                            Password = "qweqwe",
+                            Username = "admin@m.com"
                         },
                         new
                         {
@@ -416,7 +594,7 @@ namespace InnoGotchi.DataAccess.Migrations
                     b.Property<int>("PetId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ThirsyLevel")
+                    b.Property<int>("ThirstyLevel")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
@@ -436,7 +614,7 @@ namespace InnoGotchi.DataAccess.Migrations
                             HungerLevel = 0,
                             IsAlive = false,
                             PetId = 1,
-                            ThirsyLevel = 0
+                            ThirstyLevel = 0
                         },
                         new
                         {
@@ -445,7 +623,7 @@ namespace InnoGotchi.DataAccess.Migrations
                             HungerLevel = 1,
                             IsAlive = false,
                             PetId = 2,
-                            ThirsyLevel = 2
+                            ThirstyLevel = 2
                         },
                         new
                         {
@@ -454,7 +632,7 @@ namespace InnoGotchi.DataAccess.Migrations
                             HungerLevel = 2,
                             IsAlive = false,
                             PetId = 3,
-                            ThirsyLevel = 3
+                            ThirstyLevel = 1
                         });
                 });
 

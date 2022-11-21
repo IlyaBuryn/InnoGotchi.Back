@@ -5,5 +5,6 @@
         public static string DefaultRole = "User";
         public static int MaxInclusiveHungerLevel = 3;
         public static int StarvingPeriodInHours = 5;
+        public static int[] HappyPeriods = { 0, 1 };
     }
 }
