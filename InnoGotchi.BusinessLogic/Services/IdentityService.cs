@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using InnoGotchi.BusinessLogic.AuthDto;
-using InnoGotchi.BusinessLogic.Components;
-using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
+using InnoGotchi.Components.DtoModels;
+using InnoGotchi.Components.Enums;
+using InnoGotchi.Components.Settings;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +51,16 @@ namespace InnoGotchi.BusinessLogic.Services
 
             var token = CreateJwtToken(user);
 
-            return new AuthenticateResponseDto(user, token);
+            return new AuthenticateResponseDto()
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Name = user.Name,
+                Surname = user.Surname,
+                Role = user.Role.Name,
+                Image = user.Image,
+                Token = token,
+            };
         }
 
         public async Task<AuthenticateResponseDto> RegisterAsync(IdentityUserDto userToRegister)

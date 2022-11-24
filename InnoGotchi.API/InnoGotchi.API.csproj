@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\InnoGotchi.BusinessLogic\InnoGotchi.BusinessLogic.csproj" />
+    <ProjectReference Include="..\InnoGotchi.Components\InnoGotchi.Components.csproj" />
   </ItemGroup>
 
 </Project>

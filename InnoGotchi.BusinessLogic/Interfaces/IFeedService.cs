@@ -1,5 +1,5 @@
-﻿using InnoGotchi.BusinessLogic.Dto;
-using InnoGotchi.BusinessLogic.Services;
+﻿using InnoGotchi.BusinessLogic.Services;
+using InnoGotchi.Components.DtoModels;
 
 namespace InnoGotchi.BusinessLogic.Interfaces
 {

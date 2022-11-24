@@ -1092,6 +1092,7 @@
           "AutoMapper": "12.0.0",
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "12.0.0",
           "FluentValidation.AspNetCore": "11.2.2",
+          "InnoGotchi.Components": "1.0.0",
           "InnoGotchi.DataAccess": "1.0.0"
         },
         "compile": {
@@ -1099,6 +1100,21 @@
         },
         "runtime": {
           "bin/placeholder/InnoGotchi.BusinessLogic.dll": {}
+        }
+      },
+      "InnoGotchi.Components/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
+          "Microsoft.Extensions.Configuration.Abstractions": "6.0.0",
+          "Microsoft.IdentityModel.Tokens": "6.10.0"
+        },
+        "compile": {
+          "bin/placeholder/InnoGotchi.Components.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/InnoGotchi.Components.dll": {}
         }
       },
       "InnoGotchi.DataAccess/1.0.0": {
@@ -2717,6 +2733,11 @@
       "path": "../InnoGotchi.BusinessLogic/InnoGotchi.BusinessLogic.csproj",
       "msbuildProject": "../InnoGotchi.BusinessLogic/InnoGotchi.BusinessLogic.csproj"
     },
+    "InnoGotchi.Components/1.0.0": {
+      "type": "project",
+      "path": "../InnoGotchi.Components/InnoGotchi.Components.csproj",
+      "msbuildProject": "../InnoGotchi.Components/InnoGotchi.Components.csproj"
+    },
     "InnoGotchi.DataAccess/1.0.0": {
       "type": "project",
       "path": "../InnoGotchi.DataAccess/InnoGotchi.DataAccess.csproj",
@@ -2727,6 +2748,7 @@
     "net6.0": [
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 12.0.0",
       "InnoGotchi.BusinessLogic >= 1.0.0",
+      "InnoGotchi.Components >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 6.0.10",
       "Microsoft.EntityFrameworkCore >= 6.0.10",
       "Microsoft.EntityFrameworkCore.Design >= 6.0.10",
@@ -2771,6 +2793,9 @@
           "projectReferences": {
             "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.BusinessLogic\\InnoGotchi.BusinessLogic.csproj": {
               "projectPath": "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.BusinessLogic\\InnoGotchi.BusinessLogic.csproj"
+            },
+            "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.Components\\InnoGotchi.Components.csproj": {
+              "projectPath": "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.Components\\InnoGotchi.Components.csproj"
             }
           }
         }

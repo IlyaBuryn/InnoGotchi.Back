@@ -55,7 +55,6 @@ E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.AssemblyInfoInputs.cache
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.AssemblyInfo.cs
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.csproj.CoreCompileInputs.cache
-E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.MvcApplicationPartsAssemblyInfo.cs
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.MvcApplicationPartsAssemblyInfo.cache
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\staticwebassets.build.json
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\staticwebassets.development.json
@@ -74,3 +73,6 @@ E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Scrutor.dll
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Swashbuckle.AspNetCore.Filters.dll
 E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\Swashbuckle.AspNetCore.Filters.Abstractions.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\InnoGotchi.Components.dll
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\bin\Debug\net6.0\InnoGotchi.Components.pdb
+E:\Work\[Innowise]\InnoGotchi.Back.Repo\InnoGotchi.Back\InnoGotchi.API\obj\Debug\net6.0\InnoGotchi.API.MvcApplicationPartsAssemblyInfo.cs

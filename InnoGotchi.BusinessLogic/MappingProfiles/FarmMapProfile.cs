@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using InnoGotchi.BusinessLogic.Dto;
+using InnoGotchi.Components.DtoModels;
 using InnoGotchi.DataAccess.Models;
 
 namespace InnoGotchi.BusinessLogic.MappingProfiles

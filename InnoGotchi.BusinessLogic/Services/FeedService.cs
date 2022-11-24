@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using InnoGotchi.BusinessLogic.Components;
-using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
+using InnoGotchi.Components.DtoModels;
+using InnoGotchi.Components.Settings;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
@@ -143,7 +143,7 @@ namespace InnoGotchi.BusinessLogic.Services
             {
                 var petVitalSign = await _vitalSignRep.GetOneAsync(x => x.PetId == pet.Id);
                 if (petVitalSign == null || !petVitalSign.IsAlive)
-                    return;
+                    continue;
 
                 var lastFeedTime = (await _feedRep.GetAllAsync(x => x.PetId == pet.Id 
                     && x.FoodCount != 0)).FirstOrDefault();

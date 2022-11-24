@@ -1,8 +1,7 @@
 ﻿using InnoGotchi.API.Responses;
-using InnoGotchi.BusinessLogic.AuthDto;
-using InnoGotchi.BusinessLogic.Components;
-using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Interfaces;
+using InnoGotchi.Components.DtoModels;
+using InnoGotchi.Components.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

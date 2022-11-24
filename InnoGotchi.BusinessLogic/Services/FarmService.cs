@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
-using InnoGotchi.DataAccess.Components;
+using InnoGotchi.Components.DtoModels;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 

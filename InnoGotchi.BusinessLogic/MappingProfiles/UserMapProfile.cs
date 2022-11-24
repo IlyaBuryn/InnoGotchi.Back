@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using InnoGotchi.BusinessLogic.Dto;
+using InnoGotchi.Components.DtoModels;
 using InnoGotchi.DataAccess.Models;
 
 namespace InnoGotchi.BusinessLogic.MappingProfiles
@@ -8,9 +8,7 @@ namespace InnoGotchi.BusinessLogic.MappingProfiles
     {
         public UserMapProfile()
         {
-            CreateMap<IdentityUser, IdentityUserDto>()
-                //.ForMember(c => c.RoleId, option => option.MapFrom(src => src.Role))
-            .ReverseMap();
+            CreateMap<IdentityUser, IdentityUserDto>().ReverseMap();
         }
     }
 }

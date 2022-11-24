@@ -1,11 +1,8 @@
-using InnoGotchi.API.Settings;
 using InnoGotchi.BusinessLogic.Components;
-using InnoGotchi.BusinessLogic.MappingProfiles;
+using InnoGotchi.Components.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);

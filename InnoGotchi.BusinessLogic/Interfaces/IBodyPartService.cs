@@ -1,4 +1,4 @@
-﻿using InnoGotchi.BusinessLogic.Dto;
+﻿using InnoGotchi.Components.DtoModels;
 
 namespace InnoGotchi.BusinessLogic.Interfaces
 {

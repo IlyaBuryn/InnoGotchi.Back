@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "XuZnUBOhp1TM/z2IWIDpiiq8Wf34TE3Shem943INmXoSDYc+ppWNZjWelruT07qNGwkuQXVQtxCGt3rIXWxDYg==",
+  "dgSpecHash": "hghWzyQNMaEqTYHJJAitiFTJMHr7g/aBoDseoJzjJmuhVP84US9qQxt95EYJI4r7Ru/ZmxCmlLPmrMH5GuyfWA==",
   "success": true,
   "projectFilePath": "E:\\Work\\[Innowise]\\InnoGotchi.Back.Repo\\InnoGotchi.Back\\InnoGotchi.BusinessLogic\\InnoGotchi.BusinessLogic.csproj",
   "expectedPackageFiles": [
@@ -30,10 +30,10 @@
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identity.client\\4.21.1\\microsoft.identity.client.4.21.1.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\6.8.0\\microsoft.identitymodel.jsonwebtokens.6.8.0.nupkg.sha512",
-    "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.logging\\6.8.0\\microsoft.identitymodel.logging.6.8.0.nupkg.sha512",
+    "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.logging\\6.10.0\\microsoft.identitymodel.logging.6.10.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.protocols\\6.8.0\\microsoft.identitymodel.protocols.6.8.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.protocols.openidconnect\\6.8.0\\microsoft.identitymodel.protocols.openidconnect.6.8.0.nupkg.sha512",
-    "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.tokens\\6.8.0\\microsoft.identitymodel.tokens.6.8.0.nupkg.sha512",
+    "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.identitymodel.tokens\\6.10.0\\microsoft.identitymodel.tokens.6.10.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",
     "C:\\Users\\Isaac\\.nuget\\packages\\microsoft.win32.systemevents\\4.7.0\\microsoft.win32.systemevents.4.7.0.nupkg.sha512",

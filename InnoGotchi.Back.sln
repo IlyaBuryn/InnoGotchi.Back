@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoGotchi.API", "InnoGotchi.API\InnoGotchi.API.csproj", "{0AD02169-CDDA-4C2E-9F13-23E503581D62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.API", "InnoGotchi.API\InnoGotchi.API.csproj", "{0AD02169-CDDA-4C2E-9F13-23E503581D62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoGotchi.BusinessLogic", "InnoGotchi.BusinessLogic\InnoGotchi.BusinessLogic.csproj", "{72ECCC4B-5ACA-4C14-8EDB-782521082267}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.BusinessLogic", "InnoGotchi.BusinessLogic\InnoGotchi.BusinessLogic.csproj", "{72ECCC4B-5ACA-4C14-8EDB-782521082267}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoGotchi.DataAccess", "InnoGotchi.DataAccess\InnoGotchi.DataAccess.csproj", "{1A65A146-5D4B-459D-ACA1-22AC7EBCA376}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.DataAccess", "InnoGotchi.DataAccess\InnoGotchi.DataAccess.csproj", "{1A65A146-5D4B-459D-ACA1-22AC7EBCA376}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.Tests", "InnoGotchi.Tests\InnoGotchi.Tests.csproj", "{2D9643E2-D740-4E1C-BB9E-E00C1045B54C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoGotchi.Components", "InnoGotchi.Components\InnoGotchi.Components.csproj", "{83F586A8-9377-4B39-977F-11E7E385CE5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{1A65A146-5D4B-459D-ACA1-22AC7EBCA376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A65A146-5D4B-459D-ACA1-22AC7EBCA376}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A65A146-5D4B-459D-ACA1-22AC7EBCA376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D9643E2-D740-4E1C-BB9E-E00C1045B54C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D9643E2-D740-4E1C-BB9E-E00C1045B54C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D9643E2-D740-4E1C-BB9E-E00C1045B54C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D9643E2-D740-4E1C-BB9E-E00C1045B54C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83F586A8-9377-4B39-977F-11E7E385CE5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83F586A8-9377-4B39-977F-11E7E385CE5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83F586A8-9377-4B39-977F-11E7E385CE5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83F586A8-9377-4B39-977F-11E7E385CE5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

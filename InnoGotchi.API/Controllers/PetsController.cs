@@ -1,10 +1,9 @@
 ﻿using InnoGotchi.API.Responses;
-using InnoGotchi.API.Settings;
-using InnoGotchi.BusinessLogic.Components;
-using InnoGotchi.BusinessLogic.Dto;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
-using InnoGotchi.DataAccess.Components;
+using InnoGotchi.Components.DtoModels;
+using InnoGotchi.Components.Enums;
+using InnoGotchi.Components.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -122,7 +121,7 @@ namespace InnoGotchi.API.Controllers
 
         [HttpGet("page/{pageNumber}/{sortFilter}")]
         [Authorize]
-        [ProducesResponseType(typeof(Page<PetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<PetDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetPets([FromRoute] int pageNumber, 
             [FromServices] IOptions<PageSizeSettings> pageSizeSettings,[FromRoute] SortFilter sortFilter)
@@ -139,7 +138,7 @@ namespace InnoGotchi.API.Controllers
         }
         
         [HttpGet("all-count")]
-        [ProducesResponseType(typeof(Page<PetDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetPetsCount()
         {
