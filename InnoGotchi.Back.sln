@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.DataAccess", "In
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.Tests", "InnoGotchi.Tests\InnoGotchi.Tests.csproj", "{2D9643E2-D740-4E1C-BB9E-E00C1045B54C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoGotchi.Components", "InnoGotchi.Components\InnoGotchi.Components.csproj", "{83F586A8-9377-4B39-977F-11E7E385CE5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoGotchi.Components", "InnoGotchi.Components\InnoGotchi.Components.csproj", "{83F586A8-9377-4B39-977F-11E7E385CE5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
