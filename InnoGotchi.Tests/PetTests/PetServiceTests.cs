@@ -8,7 +8,6 @@ using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.BusinessLogic.Services;
 using InnoGotchi.Components.DtoModels;
 using InnoGotchi.Components.Enums;
-using InnoGotchi.DataAccess.Components;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Moq;
@@ -21,7 +20,7 @@ namespace InnoGotchi.Tests.PetTests
         private Mock<IRepository<Pet>> _petRepMock;
         private Mock<IRepository<Farm>> _farmRepMock;
         private Mock<IRepository<BodyPartPet>> _relationRepMock;
-        private Mock<IValidator<Pet>> _petValidatorMock;
+        private Mock<IValidator<PetDto>> _petValidatorMock;
         private Mock<IMapper> _mapperMock;
 
         private Fixture _fixture;
@@ -36,7 +35,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock = new Mock<IRepository<Pet>>();
             _farmRepMock = new Mock<IRepository<Farm>>();
             _relationRepMock = new Mock<IRepository<BodyPartPet>>();
-            _petValidatorMock = new Mock<IValidator<Pet>>();
+            _petValidatorMock = new Mock<IValidator<PetDto>>();
             _mapperMock = new Mock<IMapper>();
         }
 
@@ -49,7 +48,7 @@ namespace InnoGotchi.Tests.PetTests
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<Pet>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
+            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
 
             Pet nullableGetResult = null;
             _petRepMock.Setup(rep => rep.GetOneAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(nullableGetResult);
@@ -75,7 +74,7 @@ namespace InnoGotchi.Tests.PetTests
             // Arrange
             var validationResult = new Mock<ValidationResult>();
             validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<Pet>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
+            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
 
             Pet getResult = _fixture.Create<Pet>();
             _petRepMock.Setup(rep => rep.GetOneAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(getResult);
@@ -264,7 +263,7 @@ namespace InnoGotchi.Tests.PetTests
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<Pet>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
+            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
             
             Pet nullableGetResult = null;
             _petRepMock.Setup(rep => rep.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(pet);
@@ -290,7 +289,7 @@ namespace InnoGotchi.Tests.PetTests
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<Pet>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
+            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
 
             Pet petNullable = null;
             _petRepMock.Setup(rep => rep.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(petNullable);

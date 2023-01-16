@@ -1,5 +1,4 @@
-﻿using InnoGotchi.DataAccess.Components;
-using InnoGotchi.DataAccess.Data;
+﻿using InnoGotchi.DataAccess.Data;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;

@@ -14,13 +14,13 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<Collaborator> _collabRep;
         private readonly IRepository<Farm> _farmRep;
         private readonly IRepository<IdentityUser> _userRep;
-        private readonly IValidator<Collaborator> _collabValidator;
+        private readonly IValidator<CollaboratorDto> _collabValidator;
         private readonly IMapper _mapper;
 
         public CollaboratorService(IRepository<Collaborator> collabRep,
             IRepository<Farm> farmRep,
             IRepository<IdentityUser> userRep,
-            IValidator<Collaborator> collabValidator,
+            IValidator<CollaboratorDto> collabValidator,
             IMapper mapper)
         {
             _collabRep = collabRep;
@@ -32,8 +32,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<int?> CreateCollaboratorAsync(CollaboratorDto collaboratorToCreate)
         {
-            var validationResult = await _collabValidator.ValidateAsync(
-                _mapper.Map<Collaborator>(collaboratorToCreate));
+            var validationResult = await _collabValidator.ValidateAsync(collaboratorToCreate);
 
             if (!validationResult.IsValid)
                 throw new DataValidationException();

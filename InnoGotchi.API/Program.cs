@@ -1,4 +1,4 @@
-using InnoGotchi.BusinessLogic.Components;
+using InnoGotchi.BusinessLogic.Extensions;
 using InnoGotchi.Components.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -12,8 +12,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -37,7 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddCors();
 
 
-builder.Services.ConfigurationBusinessLogicManagers(
+builder.Services.ConfigureBusinessLogicLayer(
     builder.Configuration.GetConnectionString("InnoGotchiDbConnection"));
 
 var app = builder.Build();

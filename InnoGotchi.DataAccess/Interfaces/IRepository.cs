@@ -1,5 +1,4 @@
-﻿using InnoGotchi.DataAccess.Components;
-using InnoGotchi.DataAccess.Models;
+﻿using InnoGotchi.DataAccess.Models;
 using System.Linq.Expressions;
 
 namespace InnoGotchi.DataAccess.Interfaces

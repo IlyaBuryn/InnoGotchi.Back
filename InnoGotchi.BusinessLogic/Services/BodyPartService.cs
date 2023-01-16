@@ -14,13 +14,13 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<BodyPart> _bpRep;
         private readonly IRepository<BodyPartType> _bpTypeRep;
         private readonly IRepository<Pet> _petRep;
-        private readonly IValidator<BodyPart> _bpValidator;
+        private readonly IValidator<BodyPartDto> _bpValidator;
         private readonly IMapper _mapper;
 
         public BodyPartService(IRepository<BodyPart> bpRep,
             IRepository<BodyPartType> bpTypeRep,
             IRepository<Pet> petRep,
-            IValidator<BodyPart> bpValidator,
+            IValidator<BodyPartDto> bpValidator,
             IMapper mapper)
         {
             _bpRep = bpRep;
@@ -33,7 +33,7 @@ namespace InnoGotchi.BusinessLogic.Services
         public async Task<int?> AddNewBodyPartAsync(BodyPartDto bodyPartToAdd)
         {
             var validationResult = await _bpValidator
-                .ValidateAsync(_mapper.Map<BodyPart>(bodyPartToAdd));
+                .ValidateAsync(bodyPartToAdd);
 
             if (!validationResult.IsValid)
                 throw new DataValidationException();
@@ -57,7 +57,7 @@ namespace InnoGotchi.BusinessLogic.Services
         public async Task<bool> UpdateBodyPartAsync(BodyPartDto bodyPartToUpdate)
         {
             var validationResult = await _bpValidator
-                .ValidateAsync(_mapper.Map<BodyPart>(bodyPartToUpdate));
+                .ValidateAsync(bodyPartToUpdate);
 
             if (!validationResult.IsValid)
                 throw new DataValidationException();

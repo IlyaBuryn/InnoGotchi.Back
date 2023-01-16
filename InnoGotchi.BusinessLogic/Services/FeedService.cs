@@ -24,7 +24,7 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<VitalSign> _vitalSignRep;
         private readonly IRepository<Farm> _farmRep;
         private readonly IRepository<Collaborator> _collabRep;
-        private readonly IValidator<Feed> _feedValidator;
+        private readonly IValidator<FeedDto> _feedValidator;
         private readonly IMapper _mapper;
 
         private bool _recalculateHappyDays = true;
@@ -32,7 +32,7 @@ namespace InnoGotchi.BusinessLogic.Services
         public FeedService(IRepository<Feed> feedRep,
             IRepository<IdentityUser> userRep,
             IRepository<Pet> petRep,
-            IValidator<Feed> feedValidator, 
+            IValidator<FeedDto> feedValidator, 
             IMapper mapper,
             IRepository<VitalSign> vitalSignRep,
             IRepository<Farm> farmRep,
@@ -51,7 +51,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<int?> FeedPet(FeedDto feedData, FeedActionType feedActionType)
         {
-            var validationResult = await _feedValidator.ValidateAsync(_mapper.Map<Feed>(feedData));
+            var validationResult = await _feedValidator.ValidateAsync(feedData);
 
             if (!validationResult.IsValid)
                 throw new DataValidationException();

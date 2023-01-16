@@ -12,12 +12,12 @@ namespace InnoGotchi.BusinessLogic.Services
     {
         private readonly IRepository<Farm> _farmRep;
         private readonly IRepository<Collaborator> _collabRep;
-        private readonly IValidator<Farm> _farmValidator;
+        private readonly IValidator<FarmDto> _farmValidator;
         private readonly IMapper _mapper;
 
         public FarmService(IRepository<Farm> farmRep,
             IRepository<Collaborator> collabRep,
-            IValidator<Farm> farmValidator,
+            IValidator<FarmDto> farmValidator,
             IMapper mapper)
         { 
             _farmValidator = farmValidator;
@@ -28,7 +28,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<int?> CreateFarmAsync(FarmDto farmToCreate)
         {
-            var validationResult = await _farmValidator.ValidateAsync(_mapper.Map<Farm>(farmToCreate));
+            var validationResult = await _farmValidator.ValidateAsync(farmToCreate);
 
             if (!validationResult.IsValid)
                 throw new DataValidationException();
@@ -74,7 +74,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdateFarmAsync(FarmDto farmToUpdate)
         {
-            var validationResult = await _farmValidator.ValidateAsync(_mapper.Map<Farm>(farmToUpdate));
+            var validationResult = await _farmValidator.ValidateAsync(farmToUpdate);
 
             if (!validationResult.IsValid)
                 throw new DataValidationException();

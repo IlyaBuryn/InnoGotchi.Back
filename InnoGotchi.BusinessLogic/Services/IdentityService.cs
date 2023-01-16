@@ -19,15 +19,15 @@ namespace InnoGotchi.BusinessLogic.Services
     {
         private readonly IRepository<IdentityUser> _userRep;
         private readonly IRepository<IdentityRole> _roleRep;
-        private readonly IValidator<IdentityUser> _userValidator;
-        private readonly IValidator<IdentityRole> _roleValidator;
+        private readonly IValidator<IdentityUserDto> _userValidator;
+        private readonly IValidator<IdentityRoleDto> _roleValidator;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
         public IdentityService(IRepository<IdentityUser> userRep,
             IRepository<IdentityRole> roleRep,
-            IValidator<IdentityRole> roleValidator,
-            IValidator<IdentityUser> userValidator,
+            IValidator<IdentityRoleDto> roleValidator,
+            IValidator<IdentityUserDto> userValidator,
             IConfiguration configuration,
             IMapper mapper)
         {
@@ -65,7 +65,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<AuthenticateResponseDto> RegisterAsync(IdentityUserDto userToRegister)
         {
-            var validationResult = await _userValidator.ValidateAsync(_mapper.Map<IdentityUser>(userToRegister));
+            var validationResult = await _userValidator.ValidateAsync(userToRegister);
             if (!validationResult.IsValid)
                 throw new DataValidationException();
 
@@ -115,7 +115,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<int?> CreateRoleAsync(IdentityRoleDto roleToCreate)
         {
-            var validationResult = await _roleValidator.ValidateAsync(_mapper.Map<IdentityRole>(roleToCreate));
+            var validationResult = await _roleValidator.ValidateAsync(roleToCreate);
             if (!validationResult.IsValid)
                 throw new DataValidationException();
 
@@ -142,7 +142,7 @@ namespace InnoGotchi.BusinessLogic.Services
             }
             if (updateType == UpdateType.password)
             {
-                var validationResult = await _userValidator.ValidateAsync(_mapper.Map<IdentityUser>(userToUpdate));
+                var validationResult = await _userValidator.ValidateAsync(userToUpdate);
                 if (!validationResult.IsValid)
                     throw new DataValidationException();
 
