@@ -12,8 +12,10 @@ To run the application you need:
 * Use the Package Manager Console in Visual Studio. Select the `InnoGotchi.DataAccess` project and enter the `update-database` command. (must have MSSQL Server installed)
 * Next, you either use Visual Studio and run InnoGotchi.Api, or use the comand line terminal to navigate to the InnoGotchi.Api/ directory and use the `dotnet run` command. Then find in the terminal information about the running server on the local host in the form: https://localhost:7015 or https://localhost:5015
 * Next, when the API is successfully launched, you need to use Swagger or Postman to call the POST method `https://localhost:port/innogotchi/account/login` and pass the data for authorization:
-`{
+```Json
+{
    "username": "admin@m.com",
    "password": "qweqwe"
-}`
+}
+```
 after which you will receive a response in the form of user data and jwt token, which must be passed with each call to the API.
