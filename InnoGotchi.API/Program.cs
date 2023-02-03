@@ -1,3 +1,4 @@
+using InnoGotchi.API.Middleware;
 using InnoGotchi.BusinessLogic.Extensions;
 using InnoGotchi.Components.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -67,5 +68,6 @@ app.UseAuthorization();
 
 app.UseEndpoints(x => x.MapControllers());
 
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.Run();

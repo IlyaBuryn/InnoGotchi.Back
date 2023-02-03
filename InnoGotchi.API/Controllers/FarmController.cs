@@ -1,5 +1,4 @@
 ﻿using InnoGotchi.API.Responses;
-using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -24,25 +23,15 @@ namespace InnoGotchi.API.Controllers
 
         [HttpPost("create")]
         [Authorize]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreateFarm([FromBody] FarmDto farm)
         {
-            try
-            {
-                int? response = await _farmService.CreateFarmAsync(farm);
-                return Ok(response);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            int? response = await _farmService.CreateFarmAsync(farm);
+            return CreatedAtAction(nameof(CreateFarm), response);
         }
+
 
         [HttpDelete("delete/{id}")]
         [Authorize]
@@ -50,16 +39,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteFarm([FromRoute] int id)
         {
-            try
-            {
-                var response = await _farmService.DeleteFarmAsync(id);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _farmService.DeleteFarmAsync(id);
+            return Ok(response);
         }
+
 
         [HttpPut("update")]
         [Authorize]
@@ -68,20 +51,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFarm([FromBody] FarmDto farmToUpdate)
         {
-            try
-            {
-                var response = await _farmService.UpdateFarmAsync(farmToUpdate);
-                return Ok(response);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _farmService.UpdateFarmAsync(farmToUpdate);
+            return Ok(response);
         }
+
 
         [HttpGet("{farmId}")]
         [Authorize]
@@ -89,19 +62,13 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetFarmById([FromRoute] int farmId)
         {
-            try
-            {
-                var response = await _farmService.GetFarmByIdAsync(farmId);
-                if (response != null && response.Id != 0)
-                    await _feedService.RecalculatePetsNeeds(response.Id);
+            var response = await _farmService.GetFarmByIdAsync(farmId);
+            if (response != null && response.Id != 0)
+                await _feedService.RecalculatePetsNeeds(response.Id);
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            return Ok(response);
         }
+
 
         [HttpGet("user/{userId}")]
         [Authorize]
@@ -109,18 +76,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetFarmByUserId([FromRoute] int userId)
         {
-            try
-            {
-                var response = await _farmService.GetFarmByUserIdAsync(userId);
-                if (response != null && response.Id != 0)
-                    await _feedService.RecalculatePetsNeeds(response.Id);
+            var response = await _farmService.GetFarmByUserIdAsync(userId);
+            if (response != null && response.Id != 0)
+                await _feedService.RecalculatePetsNeeds(response.Id);
 
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            return Ok(response);
         }
     }
 }

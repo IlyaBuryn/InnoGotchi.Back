@@ -44,7 +44,7 @@ namespace InnoGotchi.BusinessLogic.Services
             var user = (await _userRep.GetAllAsync(x => x.Username == model.Username
                 && x.Password == model.Password)).Include(u => u.Role).FirstOrDefault();
             if (user == null)
-                throw new NotFoundException(nameof(user.Role));
+                throw new AuthenticateException();
 
             if (user.Role == null)
                 throw new NotFoundException(nameof(user.Role));

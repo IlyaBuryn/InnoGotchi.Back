@@ -1,5 +1,4 @@
 ﻿using InnoGotchi.API.Responses;
-using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using InnoGotchi.Components.Enums;
@@ -24,25 +23,15 @@ namespace InnoGotchi.API.Controllers
 
         [HttpPost("create")]
         [Authorize]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddPet([FromBody] PetDto pet)
         {
-            try
-            {
-                int? response = await _petService.AddNewPetAsync(pet);
-                return Ok(response);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            int? response = await _petService.AddNewPetAsync(pet);
+            return CreatedAtAction(nameof(AddPet), response);
         }
+
 
         [HttpPut("update")]
         [Authorize]
@@ -51,20 +40,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePet([FromBody] PetDto petToUpdate)
         {
-            try
-            {
-                var response = await _petService.UpdatePetAsync(petToUpdate);
-                return Ok(response);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _petService.UpdatePetAsync(petToUpdate);
+            return Ok(response);
         }
+
 
         [HttpDelete("delete/{id}")]
         [Authorize(Roles = "Admin")]
@@ -72,16 +51,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePet([FromRoute] int id)
         {
-            try
-            {
-                var response = await _petService.RemovePetAsync(id);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _petService.RemovePetAsync(id);
+            return Ok(response);
         }
+
 
         [HttpGet("{petId}")]
         [Authorize]
@@ -89,16 +62,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPetById([FromRoute] int petId)
         {
-            try
-            {
-                var response = await _petService.GetPetByIdAsync(petId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _petService.GetPetByIdAsync(petId);
+            return Ok(response);
         }
+
 
         [HttpGet("farm/{farmId}")]
         [Authorize]
@@ -106,17 +73,9 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPetByFarmId([FromRoute] int farmId)
         {
-            try
-            {
-                var response = await _petService.GetPetsByFarmIdAsync(farmId);
-                return Ok(response.ToList());
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _petService.GetPetsByFarmIdAsync(farmId);
+            return Ok(response.ToList());
         }
-
 
 
         [HttpGet("page/{pageNumber}/{sortFilter}")]
@@ -126,31 +85,18 @@ namespace InnoGotchi.API.Controllers
         public async Task<IActionResult> GetPets([FromRoute] int pageNumber, 
             [FromServices] IOptions<PageSizeSettings> pageSizeSettings,[FromRoute] SortFilter sortFilter)
         {
-            try
-            {
-                var response = await _petService.GetPetsAsyncAsPage(pageNumber, pageSizeSettings.Value.PageSize, sortFilter);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
+            var response = await _petService.GetPetsAsyncAsPage(pageNumber, pageSizeSettings.Value.PageSize, sortFilter);
+            return Ok(response);
         }
+
         
         [HttpGet("all-count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetPetsCount()
         {
-            try
-            {
-                var response = await _petService.GetAllPetsCount();
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
+            var response = await _petService.GetAllPetsCount();
+            return Ok(response);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using InnoGotchi.API.Responses;
-using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -21,25 +20,15 @@ namespace InnoGotchi.API.Controllers
 
         [HttpPost("create")]
         [Authorize]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddVitalSign([FromBody] VitalSignDto vitalSign)
         {
-            try
-            {
-                int? response = await _vitalSignService.CreateVitalSignAsync(vitalSign);
-                return Ok(response);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            int? response = await _vitalSignService.CreateVitalSignAsync(vitalSign);
+            return CreatedAtAction(nameof(AddVitalSign), response);
         }
+
 
         [HttpPut("update")]
         [Authorize]
@@ -48,20 +37,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateVitalSign([FromBody] VitalSignDto vitalSign)
         {
-            try
-            {
-                var response = await _vitalSignService.UpdateVitalSignAsync(vitalSign);
-                return Ok(response);
-            }
-            catch (DataValidationException ex)
-            {
-                return BadRequest(new ErrorResponse(ex.Message));
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _vitalSignService.UpdateVitalSignAsync(vitalSign);
+            return Ok(response);
         }
+
 
         [HttpGet("{vsId}")]
         [Authorize]
@@ -69,16 +48,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetVitalSignById([FromRoute] int vsId)
         {
-            try
-            {
-                var response = await _vitalSignService.GetVitalSignByIdAsync(vsId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _vitalSignService.GetVitalSignByIdAsync(vsId);
+            return Ok(response);
         }
+
 
         [HttpGet("pet/{petId}")]
         [Authorize]
@@ -86,15 +59,8 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetVitalSignByPetId([FromRoute] int petId)
         {
-            try
-            {
-                var response = await _vitalSignService.GetVitalSignByPetIdAsync(petId);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new ErrorResponse(ex.Message));
-            }
+            var response = await _vitalSignService.GetVitalSignByPetIdAsync(petId);
+            return Ok(response);
         }
     }
 }
