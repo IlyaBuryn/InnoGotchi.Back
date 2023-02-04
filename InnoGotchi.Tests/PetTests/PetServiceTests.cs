@@ -108,7 +108,7 @@ namespace InnoGotchi.Tests.PetTests
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
 
             // Act
-            var result = await _petService.GetPetByIdAsync(pets.First().Id);
+            var result = await _petService.GetPetById(pets.First().Id);
 
             // Assert
             result.Should().Be(pet);
@@ -127,7 +127,7 @@ namespace InnoGotchi.Tests.PetTests
             try
             {
                 // Act
-                var result = await _petService.GetPetByIdAsync(0);
+                var result = await _petService.GetPetById(0);
             }
             catch (Exception ex)
             {
@@ -186,7 +186,7 @@ namespace InnoGotchi.Tests.PetTests
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
 
             // Act
-            var result = await _petService.GetPetsByFarmIdAsync(It.IsAny<int>());
+            var result = await _petService.GetPetsByFarmId(It.IsAny<int>());
 
             // Assert
             result.Count().Should().Be(pets.Count());
@@ -205,7 +205,7 @@ namespace InnoGotchi.Tests.PetTests
             try
             {
                 // Act
-                var result = await _petService.GetPetsByFarmIdAsync(It.IsAny<int>());
+                var result = await _petService.GetPetsByFarmId(It.IsAny<int>());
             }
             catch (Exception ex)
             {

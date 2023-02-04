@@ -57,9 +57,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(double?), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetFeedsFoodInfo([FromRoute] int farmId)
+        public IActionResult GetFeedsFoodInfo([FromRoute] int farmId)
         {
-            var response = await _feedService.GetFeedPeriods(farmId, BusinessLogic.Services.FeedActionType.Feed);
+            var response = _feedService.GetFeedPeriods(farmId, BusinessLogic.Services.FeedActionType.Feed);
             return Ok(response);
         }
 
@@ -68,9 +68,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(double?), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetFeedsDrinkInfo([FromRoute] int farmId)
+        public IActionResult GetFeedsDrinkInfo([FromRoute] int farmId)
         {
-            var response = await _feedService.GetFeedPeriods(farmId, BusinessLogic.Services.FeedActionType.Drink);
+            var response = _feedService.GetFeedPeriods(farmId, BusinessLogic.Services.FeedActionType.Drink);
             return Ok(response);
         }
     }

@@ -39,15 +39,19 @@ namespace InnoGotchi.BusinessLogic.Services
             _mapper = mapper;
         }
 
-        public async Task<AuthenticateResponseDto> AuthenticateAsync(AuthenticateRequestDto model)
+        public AuthenticateResponseDto Authenticate(AuthenticateRequestDto model)
         {
-            var user = (await _userRep.GetAllAsync(x => x.Username == model.Username
-                && x.Password == model.Password)).Include(u => u.Role).FirstOrDefault();
+            var user = _userRep.GetAll(x => x.Username == model.Username
+                && x.Password == model.Password).Include(u => u.Role).FirstOrDefault();
             if (user == null)
+            {
                 throw new AuthenticateException();
+            }
 
             if (user.Role == null)
+            {
                 throw new NotFoundException(nameof(user.Role));
+            }
 
             var token = CreateJwtToken(user);
 
@@ -67,7 +71,9 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var validationResult = await _userValidator.ValidateAsync(userToRegister);
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var user = _mapper.Map<IdentityUser>(userToRegister);
 
@@ -75,7 +81,9 @@ namespace InnoGotchi.BusinessLogic.Services
             {
                 var role = await _roleRep.GetOneAsync(x => x.Name == DefaultSettings.DefaultRole);
                 if (role == null)
+                {
                     throw new NotFoundException("Server cannot find the role!");
+                }
 
                 user.IdentityRoleId = role.Id;
                 user.Role = role;
@@ -83,11 +91,13 @@ namespace InnoGotchi.BusinessLogic.Services
 
             var userToAdd = await _userRep.GetOneAsync(x => x.Username == userToRegister.Username);
             if (userToAdd != null)
+            {
                 throw new DataValidationException("This user already exist!");
+            }
 
             var addedUser = await _userRep.AddAsync(user);
 
-            var response = await AuthenticateAsync(new AuthenticateRequestDto
+            var response = Authenticate(new AuthenticateRequestDto
             {
                 Username = user.Username,
                 Password = user.Password,
@@ -101,7 +111,9 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var user = await _userRep.GetOneAsync(x => x.Username == username);
             if (user == null)
+            {
                 throw new NotFoundException(nameof(user));
+            }
 
             return new AuthenticateResponseDto()
             {
@@ -117,22 +129,28 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var validationResult = await _roleValidator.ValidateAsync(roleToCreate);
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var role = await _roleRep.GetOneAsync(x => x.Name == roleToCreate.Name);
             if (role != null)
+            {
                 throw new DataValidationException("This user already exist!");
+            }
 
             return await _roleRep.AddAsync(_mapper.Map<IdentityRole>(roleToCreate));
         }
 
         public async Task<bool> UpdateUserAsync(IdentityUserDto userToUpdate, UpdateType updateType)
         {
-            var user = (await _userRep.GetAllAsync(x => x.Id == userToUpdate.Id && x.Username == userToUpdate.Username))
+            var user = _userRep.GetAll(x => x.Id == userToUpdate.Id && x.Username == userToUpdate.Username)
                 .Include(x => x.Role)
                 .FirstOrDefault();
             if (user == null)
+            {
                 throw new NotFoundException(nameof(user));
+            }
 
             if (updateType == UpdateType.user)
             {
@@ -144,7 +162,9 @@ namespace InnoGotchi.BusinessLogic.Services
             {
                 var validationResult = await _userValidator.ValidateAsync(userToUpdate);
                 if (!validationResult.IsValid)
+                {
                     throw new DataValidationException();
+                }
 
                 user.Password = userToUpdate.Password;
             }
@@ -160,8 +180,12 @@ namespace InnoGotchi.BusinessLogic.Services
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                _configuration.GetSection("Jwt:Key").Value));
+            var jwtKey = _configuration.GetSection("Jwt:Key").Value;
+            if (jwtKey == null)
+            {
+                throw new ArgumentNullException("Jwt:Key value is missing from configuration");
+            }
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

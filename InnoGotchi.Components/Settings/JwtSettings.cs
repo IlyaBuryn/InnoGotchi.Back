@@ -8,7 +8,13 @@ namespace InnoGotchi.Components.Settings
     {
         public static TokenValidationParameters GetJwtOptions(this IConfiguration configuration)
         {
-            var key = Encoding.UTF8.GetBytes(configuration["Jwt:Key"]);
+            var jwtKey = configuration["Jwt:Key"];
+            if (jwtKey == null)
+            {
+                throw new ArgumentNullException("Jwt:Key value is missing from configuration");
+            }
+            var key = Encoding.UTF8.GetBytes(jwtKey);
+
             return new TokenValidationParameters
             {
                 ValidateIssuer = false,

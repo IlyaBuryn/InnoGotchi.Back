@@ -3,7 +3,7 @@ using System.Net;
 
 namespace InnoGotchi.API.Middleware
 {
-    public class ExceptionHandlerMiddleware : IMiddleware
+    public class ExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
 
@@ -12,7 +12,7 @@ namespace InnoGotchi.API.Middleware
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context)
         {
             try
             {

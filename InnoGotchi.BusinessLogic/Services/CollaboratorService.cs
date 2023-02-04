@@ -35,20 +35,28 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _collabValidator.ValidateAsync(collaboratorToCreate);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var existCollab = await _collabRep.GetOneAsync(x => x.IdentityUserId == collaboratorToCreate.IdentityUserId
                 && x.FarmId == collaboratorToCreate.FarmId);
             if (existCollab != null)
+            {
                 throw new DataValidationException("This user is already your friend!");
+            }
 
             var farm = await _farmRep.GetByIdAsync(collaboratorToCreate.FarmId);
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             var user = await _userRep.GetByIdAsync(collaboratorToCreate.IdentityUserId);
             if (user == null)
+            {
                 throw new NotFoundException(nameof(user));
+            }
 
             return await _collabRep.AddAsync(_mapper.Map<Collaborator>(collaboratorToCreate));
         }
@@ -57,25 +65,31 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var collaborator = await _collabRep.GetOneAsync(x => x.IdentityUserId == userId);
             if (collaborator == null)
+            {
                 throw new NotFoundException(nameof(collaborator));
+            }
 
             return await _collabRep.RemoveAsync(collaborator.Id);
         }
 
-        public async Task<List<CollaboratorDto>> GetAllCollaboratorsByFarmAsync(int farmId)
+        public List<CollaboratorDto> GetAllCollaboratorsByFarm(int farmId)
         {
-            var collabs = (await _collabRep.GetAllAsync(x => x.FarmId == farmId)).Include(x => x.Farm);
+            var collabs = _collabRep.GetAll(x => x.FarmId == farmId).Include(x => x.Farm);
             if (collabs == null)
+            {
                 throw new NotFoundException(nameof(collabs));
+            }
 
             return _mapper.Map<List<CollaboratorDto>>(collabs);
         }
 
-        public async Task<List<CollaboratorDto>> GetAllCollaboratorsByUserAsync(int userId)
+        public List<CollaboratorDto> GetAllCollaboratorsByUser(int userId)
         {
-            var collabs = (await _collabRep.GetAllAsync(x => x.IdentityUserId == userId)).Include(x => x.Farm);
+            var collabs = _collabRep.GetAll(x => x.IdentityUserId == userId).Include(x => x.Farm);
             if (collabs == null)
+            {
                 throw new NotFoundException(nameof(collabs));
+            }
 
             return _mapper.Map<List<CollaboratorDto>>(collabs);
         }

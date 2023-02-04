@@ -58,10 +58,10 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<BodyPartDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetBodyParts()
+        public IActionResult GetBodyParts()
         {
 
-            var response = await _bpService.GetBodyPartsAsync();
+            var response = _bpService.GetBodyParts();
             return Ok(response);
         }
 
@@ -70,9 +70,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<BodyPartDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetBodyPartsByPet([FromRoute] int petId)
+        public IActionResult GetBodyPartsByPet([FromRoute] int petId)
         {
-            var response = await _bpService.GetBodyPartsByPetIdAsync(petId);
+            var response = _bpService.GetBodyPartsByPetId(petId);
             return Ok(response);
         }
 
@@ -81,9 +81,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<BodyPartDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetBodyPartsByBodyPartType([FromRoute] int typeId)
+        public IActionResult GetBodyPartsByBodyPartType([FromRoute] int typeId)
         {
-            var response = await _bpService.GetBodyPartsByTypeIdAsync(typeId);
+            var response = _bpService.GetBodyPartsByTypeId(typeId);
             return Ok(response);
         }
 

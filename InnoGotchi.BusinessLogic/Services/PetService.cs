@@ -36,15 +36,21 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _petValidator.ValidateAsync(petToAdd);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var petExist = await _petRep.GetOneAsync(x => x.Name == petToAdd.Name);
             if (petExist != null)
+            {
                 throw new DataValidationException("This pet is already exist!");
+            }
 
             var farm = await _farmRep.GetByIdAsync(petToAdd.FarmId);
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             var pet = new Pet()
             {
@@ -59,21 +65,25 @@ namespace InnoGotchi.BusinessLogic.Services
             if (resultId != null && resultId != 0)
             {
                 foreach (var item in _mapper.Map<ICollection<BodyPart>>(petToAdd.BodyParts))
+                {
                     await _relationRep.AddAsync(new BodyPartPet() { BodyPartsId = item.Id, PetsId = (int)resultId });
+                }
             }
 
             return resultId;
         }
 
-        public async Task<PetDto?> GetPetByIdAsync(int petId)
+        public PetDto? GetPetById(int petId)
         {
-            var pet = (await _petRep.GetAllAsync(x => x.Id == petId))
+            var pet = _petRep.GetAll(x => x.Id == petId)
                 .Include(x => x.BodyParts)
                 .Include(x => x.VitalSign)
                 .FirstOrDefault();
 
             if (pet == null)
+            {
                 throw new NotFoundException(nameof(pet));
+            }
 
             return _mapper.Map<PetDto>(pet);
         }
@@ -81,27 +91,31 @@ namespace InnoGotchi.BusinessLogic.Services
         public async Task<List<PetDto>> GetPetsAsyncAsPage(int pageNumber, int pageSize, SortFilter sortFilter)
         {
             if (pageSize <= 0 || pageNumber <= 0)
+            {
                 throw new DataValidationException("Incorrect page number and(or) size provided!");
+            }
 
-            IQueryable<Pet> pets = await FilterPage(sortFilter);
+            IQueryable<Pet> pets = FilterPage(sortFilter);
 
             var page =  await CreatePage(pets, pageNumber, pageSize);
 
             return _mapper.Map<List<PetDto>>(page);
         }
 
-        public async Task<int> GetAllPetsCount()
+        public int GetAllPetsCount()
         {
-            return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive)).Count();
+            return _petRep.GetAll(x => x.VitalSign.IsAlive).Count();
         }
 
-        public async Task<List<PetDto>> GetPetsByFarmIdAsync(int farmId)
+        public List<PetDto> GetPetsByFarmId(int farmId)
         {
-            var pets = (await _petRep.GetAllAsync(x => x.FarmId == farmId))
+            var pets = _petRep.GetAll(x => x.FarmId == farmId)
                 .Include(x => x.BodyParts)
                 .Include(x => x.VitalSign);
             if (pets == null)
+            {
                 throw new NotFoundException(nameof(Farm));
+            }
 
             return _mapper.Map<List<PetDto>>(pets);
         }
@@ -110,7 +124,9 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var pet = await _petRep.GetByIdAsync(petId);
             if (pet == null)
+            {
                 throw new NotFoundException(nameof(pet));
+            }
 
             return await _petRep.RemoveAsync(petId);
         }
@@ -120,50 +136,51 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _petValidator.ValidateAsync(petToUpdate);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var pet = await _petRep.GetByIdAsync(petToUpdate.Id);
             if (pet == null)
+            {
                 throw new NotFoundException(nameof(pet));
+            }
 
             var tmp = await _petRep.GetOneAsync(x => x.Name == petToUpdate.Name);
             if (tmp != null)
+            {
                 throw new DataValidationException("Incorrect pet data!");
+            }
 
             pet.Name = petToUpdate.Name;
 
             return await _petRep.UpdateAsync(pet);
         }
 
-        public virtual async Task<IOrderedQueryable<Pet>> FilterPage(SortFilter sortFilter)
+        public virtual IOrderedQueryable<Pet> FilterPage(SortFilter sortFilter)
         {
             switch (sortFilter)
             {
                 case SortFilter.ByHappinessDays:
-                    return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
                         .Include(x => x.BodyParts)
                         .Include(x => x.VitalSign).OrderByDescending(x => x.VitalSign.HappinessDaysCount);
-                    break;
                 case SortFilter.ByAge:
-                    return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
                         .Include(x => x.BodyParts)
                         .Include(x => x.VitalSign).OrderByDescending(x => x.CreationDate);
-                    break;
                 case SortFilter.ByHungerLevel:
-                    return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
                         .Include(x => x.BodyParts)
                         .Include(x => x.VitalSign).OrderBy(x => x.VitalSign.HungerLevel);
-                    break;
                 case SortFilter.ByThirstyLevel:
-                    return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
                         .Include(x => x.BodyParts)
                         .Include(x => x.VitalSign).OrderBy(x => x.VitalSign.ThirstyLevel);
-                    break;
                 default:
-                    return (await _petRep.GetAllAsync(x => x.VitalSign.IsAlive))
+                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
                         .Include(x => x.BodyParts)
                         .Include(x => x.VitalSign).OrderByDescending(x => x.VitalSign.HappinessDaysCount);
-                    break;
             }
         }
 

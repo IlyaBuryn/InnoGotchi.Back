@@ -6,8 +6,8 @@ namespace InnoGotchi.BusinessLogic.Interfaces
     {
         public Task<int?> CreateVitalSignAsync(VitalSignDto vitalSignToAdd);
         public Task<bool> UpdateVitalSignAsync(VitalSignDto vitalSignToUpdate);
-        public Task<VitalSignDto?> GetVitalSignByIdAsync(int vitalSignId);
-        public Task<VitalSignDto?> GetVitalSignByPetIdAsync(int petId);
+        public VitalSignDto? GetVitalSignById(int vitalSignId);
+        public VitalSignDto? GetVitalSignByPetId(int petId);
 
     }
 }

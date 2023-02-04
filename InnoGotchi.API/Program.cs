@@ -39,11 +39,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddCors();
 
-
-builder.Services.ConfigureBusinessLogicLayer(
-    builder.Configuration.GetConnectionString("InnoGotchiDbConnection"));
+var connectionString = builder.Configuration.GetConnectionString("InnoGotchiDbConnection");
+if (connectionString != null)
+{
+    builder.Services.ConfigureBusinessLogicLayer(connectionString);
+}
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
@@ -67,7 +71,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseEndpoints(x => x.MapControllers());
-
-app.UseMiddleware<ExceptionHandlerMiddleware>();
-
 app.Run();

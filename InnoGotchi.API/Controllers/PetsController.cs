@@ -60,9 +60,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(PetDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPetById([FromRoute] int petId)
+        public IActionResult GetPetById([FromRoute] int petId)
         {
-            var response = await _petService.GetPetByIdAsync(petId);
+            var response = _petService.GetPetById(petId);
             return Ok(response);
         }
 
@@ -71,9 +71,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<PetDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetPetByFarmId([FromRoute] int farmId)
+        public IActionResult GetPetByFarmId([FromRoute] int farmId)
         {
-            var response = await _petService.GetPetsByFarmIdAsync(farmId);
+            var response = _petService.GetPetsByFarmId(farmId);
             return Ok(response.ToList());
         }
 
@@ -89,13 +89,13 @@ namespace InnoGotchi.API.Controllers
             return Ok(response);
         }
 
-        
+
         [HttpGet("all-count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetPetsCount()
+        public IActionResult GetPetsCount()
         {
-            var response = await _petService.GetAllPetsCount();
+            var response = _petService.GetAllPetsCount();
             return Ok(response);
         }
     }

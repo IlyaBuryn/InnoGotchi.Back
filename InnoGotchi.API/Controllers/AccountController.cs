@@ -26,9 +26,9 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SignIn([FromBody] AuthenticateRequestDto model)
+        public IActionResult SignIn([FromBody] AuthenticateRequestDto model)
         {
-            var response = await _identityService.AuthenticateAsync(model);
+            var response = _identityService.Authenticate(model);
             return CreatedAtAction(nameof(SignIn), response);
         }
 

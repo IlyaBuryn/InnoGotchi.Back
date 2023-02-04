@@ -29,41 +29,51 @@ namespace InnoGotchi.BusinessLogic.Services
         public async Task<int?> CreateVitalSignAsync(VitalSignDto vitalSignToAdd)
         {
             var validationResult = await _vsValidator.ValidateAsync(vitalSignToAdd);
-            
-            if (!validationResult.IsValid)
-                throw new DataValidationException();
 
-            var vs = (await _vitalSignRep.GetAllAsync(x => x.PetId == vitalSignToAdd.PetId))
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
+
+            var vs = _vitalSignRep.GetAll(x => x.PetId == vitalSignToAdd.PetId)
                 .FirstOrDefault();
             if (vs != null)
+            {
                 throw new DataValidationException("A vital sign already exists for this pet!");
+            }
 
 
-            var pet = await _petRep.GetAllAsync(x => x.Id == vitalSignToAdd.PetId);
+            var pet = _petRep.GetAll(x => x.Id == vitalSignToAdd.PetId);
             if (pet == null)
+            {
                 throw new NotFoundException(nameof(pet));
+            }
 
             return await _vitalSignRep.AddAsync(_mapper.Map<VitalSign>(vitalSignToAdd));
         }
 
-        public async Task<VitalSignDto?> GetVitalSignByPetIdAsync(int petId)
+        public VitalSignDto? GetVitalSignByPetId(int petId)
         {
-            var vitalSign = (await _vitalSignRep.GetAllAsync(x => x.Pet.Id == petId))
+            var vitalSign = _vitalSignRep.GetAll(x => x.Pet.Id == petId)
                 .FirstOrDefault();
 
             if (vitalSign == null)
+            {
                 throw new NotFoundException(nameof(vitalSign));
+            }
 
             return _mapper.Map<VitalSignDto>(vitalSign);
         }
 
-        public async Task<VitalSignDto?> GetVitalSignByIdAsync(int vitalSignId)
+        public VitalSignDto? GetVitalSignById(int vitalSignId)
         {
-            var vitalSign = (await _vitalSignRep.GetAllAsync(x => x.Id == vitalSignId))
+            var vitalSign = _vitalSignRep.GetAll(x => x.Id == vitalSignId)
                 .FirstOrDefault();
 
             if (vitalSign == null)
+            {
                 throw new NotFoundException(nameof(vitalSign));
+            }
 
             return _mapper.Map<VitalSignDto>(vitalSign);
         }
@@ -73,10 +83,14 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _vsValidator.ValidateAsync(vitalSignToUpdate);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             if (await _vitalSignRep.GetByIdAsync(vitalSignToUpdate.Id) == null)
+            {
                 throw new NotFoundException(nameof(vitalSignToUpdate));
+            }
 
             return await _vitalSignRep.UpdateAsync(_mapper.Map<VitalSign>(vitalSignToUpdate));
         }

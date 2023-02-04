@@ -28,7 +28,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             var pet = _fixture.Create<PetDto>();
-            _petServiceMock.Setup(srv => srv.GetPetByIdAsync(It.IsAny<int>())).ReturnsAsync(pet);
+            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).ReturnsAsync(pet);
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
@@ -43,7 +43,7 @@ namespace InnoGotchi.Tests.PetTests
         public async Task Get_PetById_ThrowNotFoundException()
         {
             // Arrange 
-            _petServiceMock.Setup(srv => srv.GetPetByIdAsync(It.IsAny<int>())).Throws(new Exception());
+            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Throws(new Exception());
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
@@ -154,11 +154,11 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             var pets = _fixture.CreateMany<PetDto>(5).ToList();
-            _petServiceMock.Setup(srv => srv.GetPetsByFarmIdAsync(It.IsAny<int>())).ReturnsAsync(pets);
+            _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).ReturnsAsync(pets);
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.GetPetByFarmId(It.IsAny<int>());
+            var result = _controller.GetPetByFarmId(It.IsAny<int>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -169,11 +169,11 @@ namespace InnoGotchi.Tests.PetTests
         public async Task Get_PetsById_ThorwException()
         {
             // Arrange
-            _petServiceMock.Setup(srv => srv.GetPetsByFarmIdAsync(It.IsAny<int>())).Throws(new NotFoundException());
+            _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Throws(new NotFoundException());
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.GetPetByFarmId(It.IsAny<int>());
+            var result = _controller.GetPetByFarmId(It.IsAny<int>());
             var obj = result as ObjectResult;
 
             // Assert

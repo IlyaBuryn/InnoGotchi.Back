@@ -2,6 +2,7 @@
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace InnoGotchi.DataAccess.Repositories
@@ -24,20 +25,18 @@ namespace InnoGotchi.DataAccess.Repositories
             return entity.Id;
         }
 
-        public async Task<T> GetOneAsync(Expression<Func<T, bool>>? predicate = null)
+        public async Task<T?> GetOneAsync(Expression<Func<T, bool>>? predicate = null)
         {
-            if (predicate == null)
-                return _dbSet.FirstOrDefault();
-
-            return _dbSet.FirstOrDefault(predicate);
+            return predicate == null
+                ? await _dbSet.FirstOrDefaultAsync()
+                : await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
-        public async Task<IQueryable<T>> GetAllAsync(Expression<Func<T, bool>>? predicate = null)
+        public IQueryable<T> GetAll(Expression<Func<T, bool>>? predicate = null)
         {
-            if (predicate == null)
-                return _dbSet.OrderByDescending(e => e.Id);
-
-            return _dbSet.OrderByDescending(e => e.Id).Where(predicate);
+            return predicate == null
+                ? _dbSet.OrderByDescending(e => e.Id)
+                : _dbSet.OrderByDescending(e => e.Id).Where(predicate);
         }
 
         public async Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null, params string[] includeValues)

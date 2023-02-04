@@ -31,16 +31,22 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _farmValidator.ValidateAsync(farmToCreate);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var farm = await _farmRep.GetOneAsync(x => x.Name == farmToCreate.Name);
             if (farm != null)
+            {
                 throw new DataValidationException("This farm is already exist!");
+            }
 
             var farmWithUser = await _farmRep
                 .GetOneAsync(x => x.IdentityUserId == farmToCreate.IdentityUserId);
             if (farmWithUser != null)
-                throw new NotFoundException(nameof(farmWithUser)); 
+            {
+                throw new NotFoundException(nameof(farmWithUser));
+            }
 
             return await _farmRep.AddAsync(_mapper.Map<Farm>(farmToCreate));
         }
@@ -49,7 +55,9 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var farm = await _farmRep.GetByIdAsync(farmId);
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             return await _farmRep.RemoveAsync(farmId);
         }
@@ -58,7 +66,9 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var farm = await _farmRep.GetByIdAsync(farmId);
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             return _mapper.Map<FarmDto>(farm);
         }
@@ -67,7 +77,9 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             var farm = await _farmRep.GetOneAsync(x => x.IdentityUserId == userId);
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             return _mapper.Map<FarmDto>(farm);
         }
@@ -77,15 +89,21 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _farmValidator.ValidateAsync(farmToUpdate);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var farm = await _farmRep.GetByIdAsync(farmToUpdate.Id);
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             var tmp = await _farmRep.GetOneAsync(x => x.Name == farmToUpdate.Name);
             if (tmp != null)
+            {
                 throw new DataValidationException("Incorrect pet data!");
+            }
 
             farm.Name = farmToUpdate.Name;
 

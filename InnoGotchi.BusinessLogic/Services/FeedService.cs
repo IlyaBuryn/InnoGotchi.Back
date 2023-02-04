@@ -54,13 +54,21 @@ namespace InnoGotchi.BusinessLogic.Services
             var validationResult = await _feedValidator.ValidateAsync(feedData);
 
             if (!validationResult.IsValid)
+            {
                 throw new DataValidationException();
+            }
 
             var pet = await _petRep.GetByIdAsync(feedData.PetId);
             if (pet == null)
+            {
                 throw new NotFoundException(nameof(pet));
+            }
 
             var farm = await _farmRep.GetByIdAsync(pet.FarmId);
+            if (farm == null)
+            {
+                throw new NotFoundException(nameof(farm));
+            }
 
             if ((await _collabRep.GetOneAsync(x => x.FarmId == farm.Id && x.IdentityUserId == feedData.IdentityUserId)) == null)
             {
@@ -72,14 +80,20 @@ namespace InnoGotchi.BusinessLogic.Services
 
             var user = await _userRep.GetByIdAsync(feedData.IdentityUserId);
             if (user == null)
+            {
                 throw new NotFoundException(nameof(user));
+            }
 
             var vitalSign = await _vitalSignRep.GetOneAsync(x => x.PetId == pet.Id);
             if (vitalSign == null)
+            {
                 throw new NotFoundException(nameof(vitalSign));
+            }
 
             if (!vitalSign.IsAlive)
+            {
                 throw new DataValidationException("Your pet is dead and cannot be fed!");
+            }
 
             if (feedActionType == FeedActionType.Feed)
             {
@@ -103,24 +117,26 @@ namespace InnoGotchi.BusinessLogic.Services
             return null;
         }
 
-        public async Task<double?> GetFeedPeriods(int farmId, FeedActionType feedActionType)
+        public double? GetFeedPeriods(int farmId, FeedActionType feedActionType)
         {
-            var farm = (await _farmRep.GetAllAsync(x => x.Id == farmId)).Include(x => x.Pets).FirstOrDefault();
+            var farm = _farmRep.GetAll(x => x.Id == farmId).Include(x => x.Pets).FirstOrDefault();
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             var pets = farm.Pets.Select(x => x.Id);
 
-            IQueryable<Feed?> feedsInfo = null;
+            IQueryable<Feed?> feedsInfo = Enumerable.Empty<Feed>().AsQueryable();
             if (feedActionType == FeedActionType.Feed)
             {
-                feedsInfo = await _feedRep.GetAllAsync(x => pets.Contains(x.PetId)
+                feedsInfo = _feedRep.GetAll(x => pets.Contains(x.PetId)
                     && x.IdentityUserId != null
                     && x.FoodCount > 0);
             }
             else if (feedActionType == FeedActionType.Drink)
             {
-                feedsInfo = await _feedRep.GetAllAsync(x => pets.Contains(x.PetId)
+                feedsInfo = _feedRep.GetAll(x => pets.Contains(x.PetId)
                     && x.IdentityUserId != null
                     && x.WaterCount > 0);
             }
@@ -128,29 +144,39 @@ namespace InnoGotchi.BusinessLogic.Services
 
             var dates = new List<int>();
             foreach (var item in feedsInfo)
-                dates.Add((DateTime.Now - item.FeedTime).Hours);
+            {
+                if (item != null)
+                {
+                    dates.Add((DateTime.Now - item.FeedTime).Hours);
+                }
+            }
 
             return Math.Round(dates.Average(), 3);
         }
 
         public async Task RecalculatePetsNeeds(int farmId)
         {
-            var farm = (await _farmRep.GetAllAsync(x => x.Id == farmId)).Include(x => x.Pets).FirstOrDefault();
+            var farm = _farmRep.GetAll(x => x.Id == farmId).Include(x => x.Pets).FirstOrDefault();
             if (farm == null)
+            {
                 throw new NotFoundException(nameof(farm));
+            }
 
             foreach(var pet in farm.Pets)
             {
                 var petVitalSign = await _vitalSignRep.GetOneAsync(x => x.PetId == pet.Id);
                 if (petVitalSign == null || !petVitalSign.IsAlive)
+                {
                     continue;
+                }
 
-                var lastFeedTime = (await _feedRep.GetAllAsync(x => x.PetId == pet.Id 
-                    && x.FoodCount != 0)).FirstOrDefault();
-                await RecalculatePetLevels(pet, petVitalSign, new Feed(), lastFeedTime, FeedActionType.Feed);
-                var lastDrinkTime = (await _feedRep.GetAllAsync(x => x.PetId == pet.Id 
-                    && x.WaterCount != 0)).FirstOrDefault();
-                await RecalculatePetLevels(pet, petVitalSign, new Feed(), lastDrinkTime, FeedActionType.Drink);
+                var lastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id && x.FoodCount != 0).FirstOrDefault();
+                var lastDrinkTime = _feedRep.GetAll(x => x.PetId == pet.Id && x.WaterCount != 0).FirstOrDefault();
+
+                await RecalculatePetLevels(pet, petVitalSign, new Feed(), 
+                    lastFeedTime == null ? new Feed() : lastFeedTime, FeedActionType.Feed);
+                await RecalculatePetLevels(pet, petVitalSign, new Feed(), 
+                    lastDrinkTime == null ? new Feed() : lastDrinkTime, FeedActionType.Drink);
             }
         }
 
@@ -169,13 +195,17 @@ namespace InnoGotchi.BusinessLogic.Services
             }
 
             if (lastFeedTime == null)
+            {
                 return;
+            }
 
             var customDays = (DateTime.Now - lastFeedTime.FeedTime).Hours;
             periodCount = customDays / DefaultSettings.StarvingPeriodInHours;
             newFeedTime.FeedTime = DateTime.Now - TimeSpan.FromHours(customDays % DefaultSettings.StarvingPeriodInHours);
             if (periodCount == 0)
+            {
                 return;
+            }
 
             UpdateVitalSignNeeds(petVitalSign, feedActionType, periodCount);
 
@@ -192,14 +222,20 @@ namespace InnoGotchi.BusinessLogic.Services
                 {
                     Feed? preLastFeedTime = null;
                     if (feedActionType == FeedActionType.Feed)
-                        preLastFeedTime = (await _feedRep.GetAllAsync(x => x.PetId == pet.Id
-                            && x.FoodCount != 0 && x.IdentityUserId == null)).FirstOrDefault();
+                    {
+                        preLastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
+                            && x.FoodCount != 0 && x.IdentityUserId == null).FirstOrDefault();
+                    }
                     if (feedActionType == FeedActionType.Drink)
-                        preLastFeedTime = (await _feedRep.GetAllAsync(x => x.PetId == pet.Id
-                            && x.WaterCount != 0 && x.IdentityUserId == null)).FirstOrDefault();
+                    {
+                        preLastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
+                            && x.WaterCount != 0 && x.IdentityUserId == null).FirstOrDefault();
+                    }
 
                     if (preLastFeedTime != null)
+                    {
                         await _feedRep.RemoveAsync(preLastFeedTime.Id);
+                    }
 
                     DistributeFood(newFeedTime, feedActionType, -periodCount);
 
@@ -253,7 +289,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
             DistributeFood(vitalSign, feedActionType, periodCount);
             if (vitalSign.HungerLevel >= DefaultSettings.MaxInclusiveHungerLevel ||
-                        vitalSign.ThirstyLevel >= DefaultSettings.MaxInclusiveHungerLevel)
+                vitalSign.ThirstyLevel >= DefaultSettings.MaxInclusiveHungerLevel)
             {
                 vitalSign.IsAlive = false;
             }
@@ -262,16 +298,24 @@ namespace InnoGotchi.BusinessLogic.Services
         private void DistributeFood(VitalSign vitalSign, FeedActionType feedActionType, int periodCount)
         {
             if (feedActionType == FeedActionType.Feed)
+            {
                 vitalSign.HungerLevel += periodCount;
+            }
             if (feedActionType == FeedActionType.Drink)
+            {
                 vitalSign.ThirstyLevel += periodCount;
+            }
         }
         private void DistributeFood(Feed newFeedTime, FeedActionType feedActionType, int periodCount)
         {
             if (feedActionType == FeedActionType.Feed)
+            {
                 newFeedTime.FoodCount = periodCount;
+            }
             if (feedActionType == FeedActionType.Drink)
+            {
                 newFeedTime.WaterCount = periodCount;
+            }
         }
     }
 }

@@ -12,7 +12,9 @@ namespace InnoGotchi.BusinessLogic.Extensions
         public static string GenerateJwtToken(this IConfiguration configuration, IdentityUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]);
+            var jwtKey = configuration.GetValue<string>("Jwt:Key", "default_key");
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { 

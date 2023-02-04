@@ -46,9 +46,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(VitalSignDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetVitalSignById([FromRoute] int vsId)
+        public IActionResult GetVitalSignById([FromRoute] int vsId)
         {
-            var response = await _vitalSignService.GetVitalSignByIdAsync(vsId);
+            var response = _vitalSignService.GetVitalSignById(vsId);
             return Ok(response);
         }
 
@@ -57,9 +57,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(VitalSignDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetVitalSignByPetId([FromRoute] int petId)
+        public IActionResult GetVitalSignByPetId([FromRoute] int petId)
         {
-            var response = await _vitalSignService.GetVitalSignByPetIdAsync(petId);
+            var response = _vitalSignService.GetVitalSignByPetId(petId);
             return Ok(response);
         }
     }
