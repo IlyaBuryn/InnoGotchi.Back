@@ -145,10 +145,7 @@ namespace InnoGotchi.BusinessLogic.Services
             var dates = new List<int>();
             foreach (var item in feedsInfo)
             {
-                if (item != null)
-                {
-                    dates.Add((DateTime.Now - item.FeedTime).Hours);
-                }
+                dates.Add((DateTime.Now - item.FeedTime).Hours);
             }
 
             return Math.Round(dates.Average(), 3);
@@ -170,13 +167,12 @@ namespace InnoGotchi.BusinessLogic.Services
                     continue;
                 }
 
-                var lastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id && x.FoodCount != 0).FirstOrDefault();
-                var lastDrinkTime = _feedRep.GetAll(x => x.PetId == pet.Id && x.WaterCount != 0).FirstOrDefault();
-
-                await RecalculatePetLevels(pet, petVitalSign, new Feed(), 
-                    lastFeedTime == null ? new Feed() : lastFeedTime, FeedActionType.Feed);
-                await RecalculatePetLevels(pet, petVitalSign, new Feed(), 
-                    lastDrinkTime == null ? new Feed() : lastDrinkTime, FeedActionType.Drink);
+                var lastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
+                    && x.FoodCount != 0).FirstOrDefault();
+                await RecalculatePetLevels(pet, petVitalSign, new Feed(), lastFeedTime, FeedActionType.Feed);
+                var lastDrinkTime = _feedRep.GetAll(x => x.PetId == pet.Id
+                    && x.WaterCount != 0).FirstOrDefault();
+                await RecalculatePetLevels(pet, petVitalSign, new Feed(), lastDrinkTime, FeedActionType.Drink);
             }
         }
 

@@ -52,13 +52,9 @@ namespace InnoGotchi.BusinessLogic.Services
                 throw new NotFoundException(nameof(farm));
             }
 
-            var pet = new Pet()
-            {
-                Name = petToAdd.Name,
-                CreationDate = DateTime.Now,
-                FarmId = petToAdd.FarmId,
-                VitalSign = new VitalSign()
-            };
+            var pet = _mapper.Map<Pet>(petToAdd);
+            pet.VitalSign.IsAlive = true;
+            pet.BodyParts = null;
 
             var resultId = await _petRep.AddAsync(pet);
 
