@@ -14,6 +14,6 @@ namespace InnoGotchi.DataAccess.Interfaces
             Expression<Func<T, bool>>? predicate = null,
             params string[] includeValues);
         public Task<T?> GetByIdAsync(int id);
-        public Task<Page<T>> CreatePage(IQueryable<T> set, int pageNumber, int pageSize);
+        public Task<Page<T>> CreatePageAsync(IQueryable<T> set, int pageNumber, int pageSize);
     }
 }

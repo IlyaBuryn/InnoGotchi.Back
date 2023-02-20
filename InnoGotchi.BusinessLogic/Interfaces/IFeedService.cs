@@ -5,8 +5,8 @@ namespace InnoGotchi.BusinessLogic.Interfaces
 {
     public interface IFeedService
     {
-        public Task<int?> FeedPet(FeedDto feedData, FeedActionType feedActionType);
+        public Task<int?> FeedPetAsync(FeedDto feedData, FeedActionType feedActionType);
         public double? GetFeedPeriods(int farmId, FeedActionType feedActionType);
-        public Task RecalculatePetsNeeds(int farmId);
+        public Task RecalculatePetsNeedsAsync(int farmId);
     }
 }

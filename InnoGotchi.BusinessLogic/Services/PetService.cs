@@ -84,7 +84,7 @@ namespace InnoGotchi.BusinessLogic.Services
             return _mapper.Map<PetDto>(pet);
         }
 
-        public async Task<List<PetDto>> GetPetsAsyncAsPage(int pageNumber, int pageSize, SortFilter sortFilter)
+        public async Task<List<PetDto>> GetPetsAsyncAsPageAsync(int pageNumber, int pageSize, SortFilter sortFilter)
         {
             if (pageSize <= 0 || pageNumber <= 0)
             {
@@ -93,7 +93,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
             IQueryable<Pet> pets = FilterPage(sortFilter);
 
-            var page =  await CreatePage(pets, pageNumber, pageSize);
+            var page =  await CreatePageAsync(pets, pageNumber, pageSize);
 
             return _mapper.Map<List<PetDto>>(page);
         }
@@ -180,7 +180,7 @@ namespace InnoGotchi.BusinessLogic.Services
             }
         }
 
-        public virtual async Task<Page<T>> CreatePage<T>(IQueryable<T> set, int pageNumber, int pageSize) where T : class
+        public virtual async Task<Page<T>> CreatePageAsync<T>(IQueryable<T> set, int pageNumber, int pageSize) where T : class
         {
             return await Page<T>.CreateFromQueryAsync(set, pageNumber, pageSize);
         }

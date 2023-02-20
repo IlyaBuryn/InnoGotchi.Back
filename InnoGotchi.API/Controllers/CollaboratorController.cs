@@ -24,10 +24,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddCollab([FromBody] CollaboratorDto collab)
+        public async Task<IActionResult> AddCollabAsync([FromBody] CollaboratorDto collab)
         {
             int? response = await _collabService.CreateCollaboratorAsync(collab);
-            return CreatedAtAction(nameof(AddCollab), response);
+            return CreatedAtAction(nameof(AddCollabAsync), response);
         }
 
 
@@ -35,7 +35,7 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> RemoveCollab([FromRoute] int userId)
+        public async Task<IActionResult> RemoveCollabAsync([FromRoute] int userId)
         {
             var response = await _collabService.DeleteCollaboratorByUserIdAsync(userId);
             return Ok(response);

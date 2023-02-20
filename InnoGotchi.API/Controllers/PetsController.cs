@@ -26,10 +26,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddPet([FromBody] PetDto pet)
+        public async Task<IActionResult> AddPetAsync([FromBody] PetDto pet)
         {
             int? response = await _petService.AddNewPetAsync(pet);
-            return CreatedAtAction(nameof(AddPet), response);
+            return CreatedAtAction(nameof(AddPetAsync), response);
         }
 
 
@@ -38,7 +38,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdatePet([FromBody] PetDto petToUpdate)
+        public async Task<IActionResult> UpdatePetAsync([FromBody] PetDto petToUpdate)
         {
             var response = await _petService.UpdatePetAsync(petToUpdate);
             return Ok(response);
@@ -49,7 +49,7 @@ namespace InnoGotchi.API.Controllers
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeletePet([FromRoute] int id)
+        public async Task<IActionResult> DeletePetAsync([FromRoute] int id)
         {
             var response = await _petService.RemovePetAsync(id);
             return Ok(response);
@@ -82,10 +82,10 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<PetDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetPets([FromRoute] int pageNumber, 
+        public async Task<IActionResult> GetPetsAsync([FromRoute] int pageNumber, 
             [FromServices] IOptions<PageSizeSettings> pageSizeSettings,[FromRoute] SortFilter sortFilter)
         {
-            var response = await _petService.GetPetsAsyncAsPage(pageNumber, pageSizeSettings.Value.PageSize, sortFilter);
+            var response = await _petService.GetPetsAsyncAsPageAsync(pageNumber, pageSizeSettings.Value.PageSize, sortFilter);
             return Ok(response);
         }
 

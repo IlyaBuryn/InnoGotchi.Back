@@ -23,10 +23,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> FeedPet([FromBody] FeedDto feedInfo)
+        public async Task<IActionResult> FeedPetAsync([FromBody] FeedDto feedInfo)
         {
-            int? response = await _feedService.FeedPet(feedInfo, BusinessLogic.Services.FeedActionType.Feed);
-            return CreatedAtAction(nameof(FeedPet), response);
+            int? response = await _feedService.FeedPetAsync(feedInfo, BusinessLogic.Services.FeedActionType.Feed);
+            return CreatedAtAction(nameof(FeedPetAsync), response);
         }
 
 
@@ -35,21 +35,21 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DrinkPet([FromBody] FeedDto feedInfo)
+        public async Task<IActionResult> DrinkPetAsync([FromBody] FeedDto feedInfo)
         {
-            int? response = await _feedService.FeedPet(feedInfo, BusinessLogic.Services.FeedActionType.Drink);
-            return CreatedAtAction(nameof(DrinkPet), response);
+            int? response = await _feedService.FeedPetAsync(feedInfo, BusinessLogic.Services.FeedActionType.Drink);
+            return CreatedAtAction(nameof(DrinkPetAsync), response);
         }
 
 
         [HttpPost("recalculate/{farmId}")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RecalculatePetsNeeds([FromRoute] int farmId)
+        public async Task<IActionResult> RecalculatePetsNeedsAsync([FromRoute] int farmId)
         {
-            await _feedService.RecalculatePetsNeeds((int)farmId);
-            return Ok();
+            await _feedService.RecalculatePetsNeedsAsync((int)farmId);
+            return Ok(true);
         }
 
 

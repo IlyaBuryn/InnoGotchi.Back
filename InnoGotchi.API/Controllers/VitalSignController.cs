@@ -23,10 +23,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddVitalSign([FromBody] VitalSignDto vitalSign)
+        public async Task<IActionResult> AddVitalSignAsync([FromBody] VitalSignDto vitalSign)
         {
             int? response = await _vitalSignService.CreateVitalSignAsync(vitalSign);
-            return CreatedAtAction(nameof(AddVitalSign), response);
+            return CreatedAtAction(nameof(AddVitalSignAsync), response);
         }
 
 
@@ -35,7 +35,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateVitalSign([FromBody] VitalSignDto vitalSign)
+        public async Task<IActionResult> UpdateVitalSignAsync([FromBody] VitalSignDto vitalSign)
         {
             var response = await _vitalSignService.UpdateVitalSignAsync(vitalSign);
             return Ok(response);

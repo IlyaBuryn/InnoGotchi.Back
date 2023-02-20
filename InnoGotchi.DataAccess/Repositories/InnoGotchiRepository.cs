@@ -46,11 +46,11 @@ namespace InnoGotchi.DataAccess.Repositories
                 set = set.Include(includeValues[i]);
 
             if (predicate == null)
-                return await CreatePage(set, pageNumber, pageSize);
+                return await CreatePageAsync(set, pageNumber, pageSize);
 
             set = set.Where(predicate);
 
-            return await CreatePage(set, pageNumber, pageSize);
+            return await CreatePageAsync(set, pageNumber, pageSize);
         }
 
         public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(new object[] { id });
@@ -78,7 +78,7 @@ namespace InnoGotchi.DataAccess.Repositories
             return false;
         }
 
-        public async Task<Page<T>> CreatePage(IQueryable<T> set, int pageNumber, int pageSize)
+        public async Task<Page<T>> CreatePageAsync(IQueryable<T> set, int pageNumber, int pageSize)
         {
             return await Page<T>.CreateFromQueryAsync(set, pageNumber, pageSize);
         }

@@ -49,7 +49,7 @@ namespace InnoGotchi.BusinessLogic.Services
         }
 
 
-        public async Task<int?> FeedPet(FeedDto feedData, FeedActionType feedActionType)
+        public async Task<int?> FeedPetAsync(FeedDto feedData, FeedActionType feedActionType)
         {
             var validationResult = await _feedValidator.ValidateAsync(feedData);
 
@@ -151,7 +151,7 @@ namespace InnoGotchi.BusinessLogic.Services
             return Math.Round(dates.Average(), 3);
         }
 
-        public async Task RecalculatePetsNeeds(int farmId)
+        public async Task RecalculatePetsNeedsAsync(int farmId)
         {
             var farm = _farmRep.GetAll(x => x.Id == farmId).Include(x => x.Pets).FirstOrDefault();
             if (farm == null)
@@ -169,16 +169,16 @@ namespace InnoGotchi.BusinessLogic.Services
 
                 var lastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
                     && x.FoodCount != 0).FirstOrDefault();
-                await RecalculatePetLevels(pet, petVitalSign, new Feed(), lastFeedTime, FeedActionType.Feed);
+                await RecalculatePetLevelsAsync(pet, petVitalSign, new Feed(), lastFeedTime, FeedActionType.Feed);
                 var lastDrinkTime = _feedRep.GetAll(x => x.PetId == pet.Id
                     && x.WaterCount != 0).FirstOrDefault();
-                await RecalculatePetLevels(pet, petVitalSign, new Feed(), lastDrinkTime, FeedActionType.Drink);
+                await RecalculatePetLevelsAsync(pet, petVitalSign, new Feed(), lastDrinkTime, FeedActionType.Drink);
             }
         }
 
 
 
-        private async Task RecalculatePetLevels(Pet pet, VitalSign petVitalSign, Feed newFeedTime, Feed lastFeedTime, FeedActionType feedActionType)
+        private async Task RecalculatePetLevelsAsync(Pet pet, VitalSign petVitalSign, Feed newFeedTime, Feed lastFeedTime, FeedActionType feedActionType)
         {
             newFeedTime.PetId = pet.Id;
             int periodCount = await TryMakeFeedTimeForNewPet(pet, newFeedTime, lastFeedTime, feedActionType);
@@ -262,20 +262,21 @@ namespace InnoGotchi.BusinessLogic.Services
         {
             if (_recalculateHappyDays)
             {
-                int k = 0; bool flag = true;
+                int happyPeriodIndex = 0;
+                bool isMatchFound = true;
                 foreach (var item in DefaultSettings.HappyPeriods)
                 {
                     if (vitalSign.HungerLevel == item && vitalSign.ThirstyLevel == item)
                     {
-                        vitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - k;
-                        flag = false;
+                        vitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - happyPeriodIndex;
+                        isMatchFound = false;
                         break;
                     }
-                    k++;
+                    happyPeriodIndex++;
                 }
 
                 if (DefaultSettings.HappyPeriods.Contains(vitalSign.HungerLevel)
-                    && DefaultSettings.HappyPeriods.Contains(vitalSign.ThirstyLevel) && flag)
+                    && DefaultSettings.HappyPeriods.Contains(vitalSign.ThirstyLevel) && isMatchFound)
                 {
                     vitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - 1;
                 }

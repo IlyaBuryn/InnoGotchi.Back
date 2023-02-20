@@ -38,10 +38,10 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(AuthenticateResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SignUp([FromBody] IdentityUserDto model)
+        public async Task<IActionResult> SignUpAsync([FromBody] IdentityUserDto model)
         {
             var response = await _identityService.RegisterAsync(model);
-            return CreatedAtAction(nameof(SignUp), response);
+            return CreatedAtAction(nameof(SignUpAsync), response);
         }
         
 
@@ -50,7 +50,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(AuthenticateResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetUserData([FromRoute] string username)
+        public async Task<IActionResult> GetUserDataAsync([FromRoute] string username)
         {
             var response = await _identityService.GetReadonlyUserData(username);
             return Ok(response);
@@ -62,7 +62,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdatePassword([FromBody] IdentityUserDto model)
+        public async Task<IActionResult> UpdatePasswordAsync([FromBody] IdentityUserDto model)
         {
             var response = await _identityService.UpdateUserAsync(model, UpdateType.password);
             return Ok(response);
@@ -74,7 +74,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateUserData([FromBody] IdentityUserDto model)
+        public async Task<IActionResult> UpdateUserDataAsync([FromBody] IdentityUserDto model)
         {
             var response = await _identityService.UpdateUserAsync(model, UpdateType.user);
             return Ok(response);
