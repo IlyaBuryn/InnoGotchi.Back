@@ -40,7 +40,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Create_Pet_RetrunPetId()
+        public async Task CreateAsync_Pet_ReturnPetId()
         {
             // Arrange
             var pet = _fixture.Create<PetDto>();
@@ -56,6 +56,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(rep => rep.AddAsync(It.IsAny<Pet>())).ReturnsAsync(1);
             _relationRepMock.Setup(rep => rep.AddAsync(It.IsAny<BodyPartPet>())).ReturnsAsync(1);
             _mapperMock.Setup(x => x.Map<ICollection<BodyPart>>(pet.BodyParts)).Returns(_fixture.Create<ICollection<BodyPart>>);
+            _mapperMock.Setup(x => x.Map<Pet>(pet)).Returns(_fixture.Create<Pet>);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
@@ -69,7 +70,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Create_Pet_ThrowDataValidationException()
+        public async Task CreateAsync_Pet_ThrowDataValidationException()
         {
             // Arrange
             var validationResult = new Mock<ValidationResult>();
@@ -95,31 +96,31 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Get_PetById_ReturnPet()
+        public void Get_PetById_ReturnPet()
         {
             // Arrange
             var pets = _fixture.CreateMany<Pet>(5);
             var pet = _fixture.Create<PetDto>();
 
-            _petRepMock.Setup(rep => rep.GetAllAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(pets.AsQueryable());
+            _petRepMock.Setup(rep => rep.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
             _mapperMock.Setup(x => x.Map<PetDto>(pets.First())).Returns(pet);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
 
             // Act
-            var result = await _petService.GetPetById(pets.First().Id);
+            var result = _petService.GetPetById(pets.First().Id);
 
             // Assert
             result.Should().Be(pet);
         }
 
         [Fact]
-        public async Task Get_PetById_ThrowNotFoundException()
+        public void Get_PetById_ThrowNotFoundException()
         {
             // Arrange
             var pets = _fixture.CreateMany<Pet>(0);
-            _petRepMock.Setup(rep => rep.GetAllAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(pets.AsQueryable());
+            _petRepMock.Setup(rep => rep.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
@@ -127,7 +128,7 @@ namespace InnoGotchi.Tests.PetTests
             try
             {
                 // Act
-                var result = await _petService.GetPetById(0);
+                var result = _petService.GetPetById(0);
             }
             catch (Exception ex)
             {
@@ -138,7 +139,7 @@ namespace InnoGotchi.Tests.PetTests
 
         [Theory]
         [InlineData(0, 0, SortFilter.ByHappinessDays)]
-        public async Task Get_PetsPage_ThrowDataValidationException(int pageNumber, int pageSize, SortFilter sortFilter)
+        public async Task GetAsync_PetsPage_ThrowDataValidationException(int pageNumber, int pageSize, SortFilter sortFilter)
         {
             // Arrange
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
@@ -147,7 +148,7 @@ namespace InnoGotchi.Tests.PetTests
             try
             {
                 // Act
-                var result = await _petService.GetPetsAsyncAsPage(pageNumber, pageSize, sortFilter);
+                var result = await _petService.GetPetsAsyncAsPageAsync(pageNumber, pageSize, sortFilter);
             }
             catch (Exception ex)
             {
@@ -158,46 +159,46 @@ namespace InnoGotchi.Tests.PetTests
 
         [Theory]
         [InlineData(5)]
-        public async Task Get_PetsCount_ReturnCount(int petsCount)
+        public void Get_PetsCount_ReturnCount(int petsCount)
         {
             // Arrange
             var pets = _fixture.CreateMany<Pet>(petsCount);
-            _petRepMock.Setup(x => x.GetAllAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(pets.AsQueryable());
+            _petRepMock.Setup(x => x.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
 
             // Act
-            var result = await _petService.GetAllPetsCount();
+            var result = _petService.GetAllPetsCount();
 
             // Assert
             result.Should().Be(petsCount);
         }
 
         [Fact]
-        public async Task Get_PetByFarmId_ReturnPets()
+        public void Get_PetByFarmId_ReturnPets()
         {
             // Arrange
             var pets = _fixture.CreateMany<Pet>(5);
-            _petRepMock.Setup(rep => rep.GetAllAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(pets.AsQueryable());
+            _petRepMock.Setup(rep => rep.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
             _mapperMock.Setup(x => x.Map<List<PetDto>>(pets)).Returns(_fixture.CreateMany<PetDto>(pets.Count()).ToList());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
 
             // Act
-            var result = await _petService.GetPetsByFarmId(It.IsAny<int>());
+            var result = _petService.GetPetsByFarmId(It.IsAny<int>());
 
             // Assert
             result.Count().Should().Be(pets.Count());
         }
 
         [Fact]
-        public async Task Get_PetByFarmId_ThrowNotFoundException()
+        public void Get_PetByFarmId_ThrowNotFoundException()
         {
             // Arrange
             var pets = _fixture.CreateMany<Pet>(0);
-            _petRepMock.Setup(rep => rep.GetAllAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(pets.AsQueryable());
+            _petRepMock.Setup(rep => rep.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
                 _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
@@ -205,7 +206,7 @@ namespace InnoGotchi.Tests.PetTests
             try
             {
                 // Act
-                var result = await _petService.GetPetsByFarmId(It.IsAny<int>());
+                var result = _petService.GetPetsByFarmId(It.IsAny<int>());
             }
             catch (Exception ex)
             {
@@ -215,7 +216,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Remove_PetById_ReturnTrue()
+        public async Task RemoveAsync_PetById_ReturnTrue()
         {
             // Arrange
             var pet = _fixture.Create<Pet>();
@@ -234,7 +235,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Remove_PetById_ThrowNotFoundException()
+        public async Task RemoveAsync_PetById_ThrowNotFoundException()
         {
             // Arrange
             Pet petNullable = null;
@@ -256,7 +257,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Update_Pet_ReturnTrue()
+        public async Task UpdateAsync_Pet_ReturnTrue()
         {
             // Arrange
             var pet = _fixture.Create<Pet>();
@@ -282,7 +283,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Update_Pet_ThrowNotFoundException()
+        public async Task UpdateAsync_Pet_ThrowNotFoundException()
         {
             // Arrange
             var pet = _fixture.Create<Pet>();

@@ -24,15 +24,15 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Get_PetById_ReturnOk()
+        public void Get_PetById_ReturnOk()
         {
             // Arrange
             var pet = _fixture.Create<PetDto>();
-            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).ReturnsAsync(pet);
+            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Returns(pet);
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.GetPetById(It.IsAny<int>());
+            var result = _controller.GetPetById(It.IsAny<int>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -40,14 +40,14 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Get_PetById_ThrowNotFoundException()
+        public void Get_PetById_ThrowNotFoundException()
         {
             // Arrange 
-            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Throws(new Exception());
+            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Throws(new NotFoundException());
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.GetPetById(It.IsAny<int>());
+            var result = _controller.GetPetById(It.IsAny<int>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -55,7 +55,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Create_Pet_ReturnOkAndSameId()
+        public async Task CreateAsync_Pet_ReturnOkAndSameId()
         {
             // Arrange
             var pet = _fixture.Create<PetDto>();
@@ -63,16 +63,16 @@ namespace InnoGotchi.Tests.PetTests
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.AddPet(pet);
+            var result = await _controller.AddPetAsync(pet);
             var obj = result as ObjectResult;
 
             // Assert
-            obj.StatusCode.Should().Be(200);
+            obj.StatusCode.Should().Be(201);
             obj.Value.Should().Be(pet.Id);
         }
 
         [Fact]
-        public async Task Create_Pet_ThrowExceptions()
+        public async Task CreateAsync_Pet_ThrowExceptions()
         {
             // Arrange
             var pet = _fixture.Create<PetDto>();
@@ -80,7 +80,7 @@ namespace InnoGotchi.Tests.PetTests
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.AddPet(pet);
+            var result = await _controller.AddPetAsync(pet);
             var obj = result as ObjectResult;
 
             // Assert
@@ -88,14 +88,14 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Update_Pet_ReturnOkAndTrue()
+        public async Task UpdateAsync_Pet_ReturnOkAndTrue()
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.UpdatePetAsync(It.IsAny<PetDto>())).ReturnsAsync(true);
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.UpdatePet(_fixture.Create<PetDto>());
+            var result = await _controller.UpdatePetAsync(_fixture.Create<PetDto>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -104,14 +104,14 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Update_Pet_ThrowExceptions()
+        public async Task UpdateAsync_Pet_ThrowExceptions()
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.UpdatePetAsync(It.IsAny<PetDto>())).Throws(new DataValidationException());
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.UpdatePet(_fixture.Create<PetDto>());
+            var result = await _controller.UpdatePetAsync(_fixture.Create<PetDto>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -119,14 +119,14 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Delete_PetById_ReturnOkAndTrue()
+        public async Task DeleteAsync_PetById_ReturnOkAndTrue()
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.RemovePetAsync(It.IsAny<int>())).ReturnsAsync(true);
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.DeletePet(It.IsAny<int>());
+            var result = await _controller.DeletePetAsync(It.IsAny<int>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -135,14 +135,14 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Delete_PetById_ThrowNotFoundException()
+        public async Task DeleteAsync_PetById_ThrowNotFoundException()
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.RemovePetAsync(It.IsAny<int>())).Throws(new NotFoundException());
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
-            var result = await _controller.DeletePet(It.IsAny<int>());
+            var result = await _controller.DeletePetAsync(It.IsAny<int>());
             var obj = result as ObjectResult;
 
             // Assert
@@ -150,11 +150,11 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Get_PetsById_ReturnOk()
+        public void Get_PetsById_ReturnOk()
         {
             // Arrange
             var pets = _fixture.CreateMany<PetDto>(5).ToList();
-            _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).ReturnsAsync(pets);
+            _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Returns(pets);
             _controller = new PetsController(_petServiceMock.Object);
 
             // Act
@@ -166,7 +166,7 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task Get_PetsById_ThorwException()
+        public void Get_PetsById_ThorwException()
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Throws(new NotFoundException());
