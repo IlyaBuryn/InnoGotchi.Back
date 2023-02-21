@@ -20,7 +20,6 @@ namespace InnoGotchi.Tests.PetTests
         private Mock<IRepository<Pet>> _petRepMock;
         private Mock<IRepository<Farm>> _farmRepMock;
         private Mock<IRepository<BodyPartPet>> _relationRepMock;
-        private Mock<IValidator<PetDto>> _petValidatorMock;
         private Mock<IMapper> _mapperMock;
 
         private Fixture _fixture;
@@ -35,7 +34,6 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock = new Mock<IRepository<Pet>>();
             _farmRepMock = new Mock<IRepository<Farm>>();
             _relationRepMock = new Mock<IRepository<BodyPartPet>>();
-            _petValidatorMock = new Mock<IValidator<PetDto>>();
             _mapperMock = new Mock<IMapper>();
         }
 
@@ -48,7 +46,6 @@ namespace InnoGotchi.Tests.PetTests
 
             var validationResult = new Mock<ValidationResult>();
             validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
 
             Pet nullableGetResult = null;
             _petRepMock.Setup(rep => rep.GetOneAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(nullableGetResult);
@@ -59,7 +56,7 @@ namespace InnoGotchi.Tests.PetTests
             _mapperMock.Setup(x => x.Map<Pet>(pet)).Returns(_fixture.Create<Pet>);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             // Act
             var result = await _petService.AddNewPetAsync(pet);
@@ -73,15 +70,11 @@ namespace InnoGotchi.Tests.PetTests
         public async Task CreateAsync_Pet_ThrowDataValidationException()
         {
             // Arrange
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
-
             Pet getResult = _fixture.Create<Pet>();
             _petRepMock.Setup(rep => rep.GetOneAsync(It.IsAny<Expression<Func<Pet, bool>>>())).ReturnsAsync(getResult);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             try
             {
@@ -106,7 +99,7 @@ namespace InnoGotchi.Tests.PetTests
             _mapperMock.Setup(x => x.Map<PetDto>(pets.First())).Returns(pet);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             // Act
             var result = _petService.GetPetById(pets.First().Id);
@@ -123,7 +116,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(rep => rep.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             try
             {
@@ -143,7 +136,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             try
             {
@@ -166,7 +159,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(x => x.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             // Act
             var result = _petService.GetAllPetsCount();
@@ -184,7 +177,7 @@ namespace InnoGotchi.Tests.PetTests
             _mapperMock.Setup(x => x.Map<List<PetDto>>(pets)).Returns(_fixture.CreateMany<PetDto>(pets.Count()).ToList());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             // Act
             var result = _petService.GetPetsByFarmId(It.IsAny<int>());
@@ -201,7 +194,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(rep => rep.GetAll(It.IsAny<Expression<Func<Pet, bool>>>())).Returns(pets.AsQueryable());
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             try
             {
@@ -224,7 +217,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(rep => rep.RemoveAsync(It.IsAny<int>())).ReturnsAsync(true);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             // Act
             var result = await _petService.RemovePetAsync(It.IsAny<int>());
@@ -242,7 +235,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(rep => rep.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(petNullable);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             try
             {
@@ -261,10 +254,6 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             var pet = _fixture.Create<Pet>();
-
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
             
             Pet nullableGetResult = null;
             _petRepMock.Setup(rep => rep.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(pet);
@@ -272,7 +261,7 @@ namespace InnoGotchi.Tests.PetTests
             _petRepMock.Setup(rep => rep.UpdateAsync(pet)).ReturnsAsync(true);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             // Act
             var result = await _petService.UpdatePetAsync(_fixture.Create<PetDto>());
@@ -288,15 +277,11 @@ namespace InnoGotchi.Tests.PetTests
             // Arrange
             var pet = _fixture.Create<Pet>();
 
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
-
             Pet petNullable = null;
             _petRepMock.Setup(rep => rep.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(petNullable);
 
             _petService = new PetService(_petRepMock.Object, _farmRepMock.Object,
-                _relationRepMock.Object, _petValidatorMock.Object, _mapperMock.Object);
+                _relationRepMock.Object, _mapperMock.Object);
 
             try
             {

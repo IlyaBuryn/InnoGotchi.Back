@@ -1,5 +1,7 @@
 ﻿using AutoFixture;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using InnoGotchi.API.Controllers;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
@@ -12,6 +14,7 @@ namespace InnoGotchi.Tests.PetTests
     public class PetControllerTests
     {
         private Mock<IPetService> _petServiceMock;
+        private Mock<IValidator<PetDto>> _petValidatorMock;
         private Fixture _fixture;
         private PetsController _controller;
 
@@ -21,6 +24,11 @@ namespace InnoGotchi.Tests.PetTests
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _petServiceMock = new Mock<IPetService>();
+
+            _petValidatorMock = new Mock<IValidator<PetDto>>();
+            var validationResult = new Mock<ValidationResult>();
+            validationResult.Setup(x => x.IsValid).Returns(true);
+            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
         }
 
         [Fact]
@@ -29,7 +37,7 @@ namespace InnoGotchi.Tests.PetTests
             // Arrange
             var pet = _fixture.Create<PetDto>();
             _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Returns(pet);
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = _controller.GetPetById(It.IsAny<int>());
@@ -44,7 +52,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange 
             _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Throws(new NotFoundException());
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = _controller.GetPetById(It.IsAny<int>());
@@ -60,7 +68,7 @@ namespace InnoGotchi.Tests.PetTests
             // Arrange
             var pet = _fixture.Create<PetDto>();
             _petServiceMock.Setup(srv => srv.AddNewPetAsync(It.IsAny<PetDto>())).ReturnsAsync(pet.Id);
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = await _controller.AddPetAsync(pet);
@@ -77,7 +85,7 @@ namespace InnoGotchi.Tests.PetTests
             // Arrange
             var pet = _fixture.Create<PetDto>();
             _petServiceMock.Setup(srv => srv.AddNewPetAsync(It.IsAny<PetDto>())).Throws(new DataValidationException());
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = await _controller.AddPetAsync(pet);
@@ -92,7 +100,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.UpdatePetAsync(It.IsAny<PetDto>())).ReturnsAsync(true);
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = await _controller.UpdatePetAsync(_fixture.Create<PetDto>());
@@ -108,7 +116,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.UpdatePetAsync(It.IsAny<PetDto>())).Throws(new DataValidationException());
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = await _controller.UpdatePetAsync(_fixture.Create<PetDto>());
@@ -123,7 +131,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.RemovePetAsync(It.IsAny<int>())).ReturnsAsync(true);
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = await _controller.DeletePetAsync(It.IsAny<int>());
@@ -139,7 +147,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.RemovePetAsync(It.IsAny<int>())).Throws(new NotFoundException());
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = await _controller.DeletePetAsync(It.IsAny<int>());
@@ -155,7 +163,7 @@ namespace InnoGotchi.Tests.PetTests
             // Arrange
             var pets = _fixture.CreateMany<PetDto>(5).ToList();
             _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Returns(pets);
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = _controller.GetPetByFarmId(It.IsAny<int>());
@@ -170,7 +178,7 @@ namespace InnoGotchi.Tests.PetTests
         {
             // Arrange
             _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Throws(new NotFoundException());
-            _controller = new PetsController(_petServiceMock.Object);
+            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
 
             // Act
             var result = _controller.GetPetByFarmId(It.IsAny<int>());
