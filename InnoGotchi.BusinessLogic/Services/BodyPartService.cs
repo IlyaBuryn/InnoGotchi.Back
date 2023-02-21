@@ -14,32 +14,21 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<BodyPart> _bpRep;
         private readonly IRepository<BodyPartType> _bpTypeRep;
         private readonly IRepository<Pet> _petRep;
-        private readonly IValidator<BodyPartDto> _bpValidator;
         private readonly IMapper _mapper;
 
         public BodyPartService(IRepository<BodyPart> bpRep,
             IRepository<BodyPartType> bpTypeRep,
             IRepository<Pet> petRep,
-            IValidator<BodyPartDto> bpValidator,
             IMapper mapper)
         {
             _bpRep = bpRep;
             _bpTypeRep = bpTypeRep;
             _petRep = petRep;
-            _bpValidator = bpValidator;
             _mapper = mapper;
         }
 
         public async Task<int?> AddNewBodyPartAsync(BodyPartDto bodyPartToAdd)
         {
-            var validationResult = await _bpValidator
-                .ValidateAsync(bodyPartToAdd);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var type = await _bpTypeRep.GetByIdAsync(bodyPartToAdd.BodyPartTypeId);
             if (type == null)
             {
@@ -62,14 +51,6 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdateBodyPartAsync(BodyPartDto bodyPartToUpdate)
         {
-            var validationResult = await _bpValidator
-                .ValidateAsync(bodyPartToUpdate);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var bodyPart = await _bpRep.GetByIdAsync(bodyPartToUpdate.Id);
             if (bodyPart == null)
             {

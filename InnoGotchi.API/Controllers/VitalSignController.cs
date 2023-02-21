@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +14,13 @@ namespace InnoGotchi.API.Controllers
     public class VitalSignController : ControllerBase
     {
         private readonly IVitalSignService _vitalSignService;
+        private readonly IValidator<VitalSignDto> _vsValidator;
 
-        public VitalSignController(IVitalSignService vitalSignService)
+        public VitalSignController(IVitalSignService vitalSignService,
+            IValidator<VitalSignDto> vsValidator)
         {
             _vitalSignService = vitalSignService;
+            _vsValidator = vsValidator;
         }
 
         [HttpPost("create")]
@@ -25,6 +30,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddVitalSignAsync([FromBody] VitalSignDto vitalSign)
         {
+            var validationResult = await _vsValidator.ValidateAsync(vitalSign);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             int? response = await _vitalSignService.CreateVitalSignAsync(vitalSign);
             return CreatedAtAction(nameof(AddVitalSignAsync), response);
         }
@@ -37,6 +47,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateVitalSignAsync([FromBody] VitalSignDto vitalSign)
         {
+            var validationResult = await _vsValidator.ValidateAsync(vitalSign);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             var response = await _vitalSignService.UpdateVitalSignAsync(vitalSign);
             return Ok(response);
         }

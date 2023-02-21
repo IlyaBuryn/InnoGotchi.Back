@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using InnoGotchi.Components.Enums;
@@ -13,10 +15,17 @@ namespace InnoGotchi.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IIdentityService _identityService;
+        private readonly IValidator<IdentityUserDto> _userValidator;
+        private readonly IValidator<IdentityRoleDto> _roleValidator;
 
-        public AccountController(IIdentityService identityService)
+        public AccountController(
+            IIdentityService identityService,
+            IValidator<IdentityRoleDto> roleValidator,
+            IValidator<IdentityUserDto> userValidator)
         {
             _identityService = identityService;
+            _userValidator = userValidator;
+            _roleValidator = roleValidator;
         }
 
 
@@ -40,6 +49,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SignUpAsync([FromBody] IdentityUserDto model)
         {
+            var validationResult = await _userValidator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             var response = await _identityService.RegisterAsync(model);
             return CreatedAtAction(nameof(SignUpAsync), response);
         }
@@ -64,6 +78,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdatePasswordAsync([FromBody] IdentityUserDto model)
         {
+            var validationResult = await _userValidator.ValidateAsync(model);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             var response = await _identityService.UpdateUserAsync(model, UpdateType.password);
             return Ok(response);
         }

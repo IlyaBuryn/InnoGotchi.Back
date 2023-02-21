@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -13,11 +15,16 @@ namespace InnoGotchi.API.Controllers
     {
         private readonly IFarmService _farmService;
         private readonly IFeedService _feedService;
+        private readonly IValidator<FarmDto> _farmValidator;
 
-        public FarmController(IFarmService farmService, IFeedService feedService)
+        public FarmController(
+            IFarmService farmService, 
+            IFeedService feedService,
+            IValidator<FarmDto> farmValidator)
         {
             _farmService = farmService;
             _feedService = feedService;
+            _farmValidator = farmValidator;
         }
 
 
@@ -28,6 +35,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreateFarmAsync([FromBody] FarmDto farm)
         {
+            var validationResult = await _farmValidator.ValidateAsync(farm);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             int? response = await _farmService.CreateFarmAsync(farm);
             return CreatedAtAction(nameof(CreateFarmAsync), response);
         }
@@ -51,6 +63,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFarmAsync([FromBody] FarmDto farmToUpdate)
         {
+            var validationResult = await _farmValidator.ValidateAsync(farmToUpdate);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             var response = await _farmService.UpdateFarmAsync(farmToUpdate);
             return Ok(response);
         }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
@@ -15,16 +14,13 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<Pet> _petRep;
         private readonly IRepository<Farm> _farmRep;
         private readonly IRepository<BodyPartPet> _relationRep;
-        private readonly IValidator<PetDto> _petValidator;
         private readonly IMapper _mapper;
 
         public PetService(IRepository<Pet> petRep,
             IRepository<Farm> farmRep,
             IRepository<BodyPartPet> relationRep,
-            IValidator<PetDto> petValidator,
             IMapper mapper)
         {
-            _petValidator = petValidator;
             _farmRep = farmRep;
             _petRep = petRep;
             _mapper = mapper;
@@ -33,13 +29,6 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<int?> AddNewPetAsync(PetDto petToAdd)
         {
-            var validationResult = await _petValidator.ValidateAsync(petToAdd);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var petExist = await _petRep.GetOneAsync(x => x.Name == petToAdd.Name);
             if (petExist != null)
             {
@@ -129,13 +118,6 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdatePetAsync(PetDto petToUpdate)
         {
-            var validationResult = await _petValidator.ValidateAsync(petToUpdate);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var pet = await _petRep.GetByIdAsync(petToUpdate.Id);
             if (pet == null)
             {

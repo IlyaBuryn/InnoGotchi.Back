@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +14,14 @@ namespace InnoGotchi.API.Controllers
     public class FeedController : ControllerBase
     {
         private readonly IFeedService _feedService;
+        private readonly IValidator<FeedDto> _feedValidator;
 
-        public FeedController(IFeedService feedService)
+        public FeedController(
+            IFeedService feedService,
+            IValidator<FeedDto> feedValidator)
         {
             _feedService = feedService;
+            _feedValidator = feedValidator;
         }
 
         [HttpPost("food")]
@@ -25,6 +31,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> FeedPetAsync([FromBody] FeedDto feedInfo)
         {
+            var validationResult = await _feedValidator.ValidateAsync(feedInfo);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             int? response = await _feedService.FeedPetAsync(feedInfo, BusinessLogic.Services.FeedActionType.Feed);
             return CreatedAtAction(nameof(FeedPetAsync), response);
         }

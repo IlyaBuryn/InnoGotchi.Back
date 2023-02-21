@@ -13,28 +13,18 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<Pet> _petRep;
         private readonly IRepository<VitalSign> _vitalSignRep;
         private readonly IMapper _mapper;
-        private readonly IValidator<VitalSignDto> _vsValidator;
 
         public VitalSignService(IRepository<Pet> petRep,
             IRepository<VitalSign> vitalSignRep,
-            IValidator<VitalSignDto> vsValidator,
             IMapper mapper)
         {
             _petRep = petRep;
             _vitalSignRep = vitalSignRep;
-            _vsValidator = vsValidator;
             _mapper = mapper;
         }
 
         public async Task<int?> CreateVitalSignAsync(VitalSignDto vitalSignToAdd)
         {
-            var validationResult = await _vsValidator.ValidateAsync(vitalSignToAdd);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var vs = _vitalSignRep.GetAll(x => x.PetId == vitalSignToAdd.PetId)
                 .FirstOrDefault();
             if (vs != null)
@@ -80,13 +70,6 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdateVitalSignAsync(VitalSignDto vitalSignToUpdate)
         {
-            var validationResult = await _vsValidator.ValidateAsync(vitalSignToUpdate);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             if (await _vitalSignRep.GetByIdAsync(vitalSignToUpdate.Id) == null)
             {
                 throw new NotFoundException(nameof(vitalSignToUpdate));

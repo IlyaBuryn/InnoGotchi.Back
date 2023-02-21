@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
@@ -24,7 +23,6 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<VitalSign> _vitalSignRep;
         private readonly IRepository<Farm> _farmRep;
         private readonly IRepository<Collaborator> _collabRep;
-        private readonly IValidator<FeedDto> _feedValidator;
         private readonly IMapper _mapper;
 
         private bool _recalculateHappyDays = true;
@@ -32,7 +30,6 @@ namespace InnoGotchi.BusinessLogic.Services
         public FeedService(IRepository<Feed> feedRep,
             IRepository<IdentityUser> userRep,
             IRepository<Pet> petRep,
-            IValidator<FeedDto> feedValidator, 
             IMapper mapper,
             IRepository<VitalSign> vitalSignRep,
             IRepository<Farm> farmRep,
@@ -41,7 +38,6 @@ namespace InnoGotchi.BusinessLogic.Services
             _feedRep = feedRep;
             _userRep = userRep;
             _petRep = petRep;
-            _feedValidator = feedValidator;
             _mapper = mapper;
             _vitalSignRep = vitalSignRep;
             _farmRep = farmRep;
@@ -51,13 +47,6 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<int?> FeedPetAsync(FeedDto feedData, FeedActionType feedActionType)
         {
-            var validationResult = await _feedValidator.ValidateAsync(feedData);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var pet = await _petRep.GetByIdAsync(feedData.PetId);
             if (pet == null)
             {
@@ -143,12 +132,15 @@ namespace InnoGotchi.BusinessLogic.Services
             else return null;
 
             var dates = new List<int>();
-            foreach (var item in feedsInfo)
+            if (feedsInfo.Count() != 0)
             {
-                dates.Add((DateTime.Now - item.FeedTime).Hours);
+                foreach (var item in feedsInfo)
+                {
+                    dates.Add((DateTime.Now - item.FeedTime).Hours);
+                }
+                return Math.Round(dates.Average(), 3);
             }
-
-            return Math.Round(dates.Average(), 3);
+            return 0;
         }
 
         public async Task RecalculatePetsNeedsAsync(int farmId)

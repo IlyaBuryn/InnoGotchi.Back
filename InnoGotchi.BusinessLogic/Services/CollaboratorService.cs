@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
@@ -14,31 +13,21 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<Collaborator> _collabRep;
         private readonly IRepository<Farm> _farmRep;
         private readonly IRepository<IdentityUser> _userRep;
-        private readonly IValidator<CollaboratorDto> _collabValidator;
         private readonly IMapper _mapper;
 
         public CollaboratorService(IRepository<Collaborator> collabRep,
             IRepository<Farm> farmRep,
             IRepository<IdentityUser> userRep,
-            IValidator<CollaboratorDto> collabValidator,
             IMapper mapper)
         {
             _collabRep = collabRep;
             _farmRep = farmRep;
             _userRep = userRep;
-            _collabValidator = collabValidator;
             _mapper = mapper;
         }
 
         public async Task<int?> CreateCollaboratorAsync(CollaboratorDto collaboratorToCreate)
         {
-            var validationResult = await _collabValidator.ValidateAsync(collaboratorToCreate);
-
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var existCollab = await _collabRep.GetOneAsync(x => x.IdentityUserId == collaboratorToCreate.IdentityUserId
                 && x.FarmId == collaboratorToCreate.FarmId);
             if (existCollab != null)

@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using InnoGotchi.Components.Enums;
@@ -15,10 +17,13 @@ namespace InnoGotchi.API.Controllers
     public class PetsController : ControllerBase
     {
         private readonly IPetService _petService;
+        private readonly IValidator<PetDto> _petValidator;
 
-        public PetsController(IPetService petService)
+        public PetsController(IPetService petService,
+            IValidator<PetDto> petValidator)
         {
             _petService = petService;
+            _petValidator = petValidator;
         }
 
         [HttpPost("create")]
@@ -28,6 +33,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddPetAsync([FromBody] PetDto pet)
         {
+            var validationResult = await _petValidator.ValidateAsync(pet);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             int? response = await _petService.AddNewPetAsync(pet);
             return CreatedAtAction(nameof(AddPetAsync), response);
         }
@@ -40,6 +50,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePetAsync([FromBody] PetDto petToUpdate)
         {
+            var validationResult = await _petValidator.ValidateAsync(petToUpdate);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             var response = await _petService.UpdatePetAsync(petToUpdate);
             return Ok(response);
         }

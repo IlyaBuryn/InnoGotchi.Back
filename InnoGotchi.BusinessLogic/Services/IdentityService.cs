@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
@@ -19,20 +18,14 @@ namespace InnoGotchi.BusinessLogic.Services
     {
         private readonly IRepository<IdentityUser> _userRep;
         private readonly IRepository<IdentityRole> _roleRep;
-        private readonly IValidator<IdentityUserDto> _userValidator;
-        private readonly IValidator<IdentityRoleDto> _roleValidator;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
         public IdentityService(IRepository<IdentityUser> userRep,
             IRepository<IdentityRole> roleRep,
-            IValidator<IdentityRoleDto> roleValidator,
-            IValidator<IdentityUserDto> userValidator,
             IConfiguration configuration,
             IMapper mapper)
         {
-            _userValidator = userValidator;
-            _roleValidator = roleValidator;
             _configuration = configuration;
             _userRep = userRep;
             _roleRep = roleRep;
@@ -69,12 +62,6 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<AuthenticateResponseDto> RegisterAsync(IdentityUserDto userToRegister)
         {
-            var validationResult = await _userValidator.ValidateAsync(userToRegister);
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
             var user = _mapper.Map<IdentityUser>(userToRegister);
 
             if (user.IdentityRoleId == default)
@@ -125,23 +112,6 @@ namespace InnoGotchi.BusinessLogic.Services
             };
         }
 
-        public async Task<int?> CreateRoleAsync(IdentityRoleDto roleToCreate)
-        {
-            var validationResult = await _roleValidator.ValidateAsync(roleToCreate);
-            if (!validationResult.IsValid)
-            {
-                throw new DataValidationException();
-            }
-
-            var role = await _roleRep.GetOneAsync(x => x.Name == roleToCreate.Name);
-            if (role != null)
-            {
-                throw new DataValidationException("This user already exist!");
-            }
-
-            return await _roleRep.AddAsync(_mapper.Map<IdentityRole>(roleToCreate));
-        }
-
         public async Task<bool> UpdateUserAsync(IdentityUserDto userToUpdate, UpdateType updateType)
         {
             var user = _userRep.GetAll(x => x.Id == userToUpdate.Id && x.Username == userToUpdate.Username)
@@ -160,12 +130,6 @@ namespace InnoGotchi.BusinessLogic.Services
             }
             if (updateType == UpdateType.password)
             {
-                var validationResult = await _userValidator.ValidateAsync(userToUpdate);
-                if (!validationResult.IsValid)
-                {
-                    throw new DataValidationException();
-                }
-
                 user.Password = userToUpdate.Password;
             }
 

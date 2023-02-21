@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +14,14 @@ namespace InnoGotchi.API.Controllers
     public class CollaboratorController : ControllerBase
     {
         private readonly ICollaboratorService _collabService;
+        private readonly IValidator<CollaboratorDto> _collabValidator;
 
-        public CollaboratorController(ICollaboratorService collabService)
+        public CollaboratorController(
+            ICollaboratorService collabService,
+            IValidator<CollaboratorDto> collabValidator)
         {
             _collabService = collabService;
+            _collabValidator = collabValidator;
         }
 
 
@@ -26,6 +32,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddCollabAsync([FromBody] CollaboratorDto collab)
         {
+            var validationResult = await _collabValidator.ValidateAsync(collab);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             int? response = await _collabService.CreateCollaboratorAsync(collab);
             return CreatedAtAction(nameof(AddCollabAsync), response);
         }

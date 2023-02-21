@@ -12,7 +12,7 @@ namespace InnoGotchi.DataAccess.Extensions
         public static void ConfigureDataAccessLayer(this IServiceCollection builder, string connectionString)
         {
             builder.AddDbContext<InnoGotchiDbContext>(options =>
-            options.UseSqlServer(connectionString));
+                options.UseSqlServer(connectionString));
 
             builder.AddScoped(typeof(IRepository<>), typeof(InnoGotchiRepository<>));
 

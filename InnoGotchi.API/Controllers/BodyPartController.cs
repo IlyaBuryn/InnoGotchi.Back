@@ -1,4 +1,6 @@
-﻿using InnoGotchi.API.Responses;
+﻿using FluentValidation;
+using InnoGotchi.API.Responses;
+using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +14,14 @@ namespace InnoGotchi.API.Controllers
     public class BodyPartController : ControllerBase
     {
         private readonly IBodyPartService _bpService;
+        private readonly IValidator<BodyPartDto> _bpValidator;
 
-        public BodyPartController(IBodyPartService bpService)
+        public BodyPartController(
+            IBodyPartService bpService, 
+            IValidator<BodyPartDto> bpValidator)
         {
             _bpService = bpService;
+            _bpValidator = bpValidator;
         }
 
 
@@ -26,6 +32,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddBodyPartAsync([FromBody] BodyPartDto bodyPart)
         {
+            var validationResult = await _bpValidator.ValidateAsync(bodyPart);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             int? response = await _bpService.AddNewBodyPartAsync(bodyPart);
             return CreatedAtAction(nameof(AddBodyPartAsync), response);
         }
@@ -38,6 +49,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBodyPartAsync([FromBody] BodyPartDto bodyPart)
         {
+            var validationResult = await _bpValidator.ValidateAsync(bodyPart);
+            if (!validationResult.IsValid)
+            {
+                throw new DataValidationException();
+            }
             var response = await _bpService.UpdateBodyPartAsync(bodyPart);
             return Ok(response);
         }
