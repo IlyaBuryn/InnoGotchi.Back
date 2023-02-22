@@ -7,7 +7,7 @@ using System.Text;
 
 namespace InnoGotchi.BusinessLogic.Extensions
 {
-    public static class IdentityExtension
+    public static class ConfigurationExtensions
     {
         public static string GenerateJwtToken(this IConfiguration configuration, IdentityUser user)
         {

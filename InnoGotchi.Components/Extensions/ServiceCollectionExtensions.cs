@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace InnoGotchi.Components.Extensions
 {
-    public static class ValidationDIExtensions
+    public static class ServiceCollectionExtensions
     {
         public static void AddValidatorsFromAssembly(this IServiceCollection services, Assembly assembly)
         {

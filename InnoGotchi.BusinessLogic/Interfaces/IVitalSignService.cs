@@ -4,10 +4,10 @@ namespace InnoGotchi.BusinessLogic.Interfaces
 {
     public interface IVitalSignService
     {
-        public Task<int?> CreateVitalSignAsync(VitalSignDto vitalSignToAdd);
-        public Task<bool> UpdateVitalSignAsync(VitalSignDto vitalSignToUpdate);
-        public VitalSignDto? GetVitalSignById(int vitalSignId);
-        public VitalSignDto? GetVitalSignByPetId(int petId);
+        Task<int?> CreateVitalSignAsync(VitalSignDto vitalSignToAdd);
+        Task<bool> UpdateVitalSignAsync(VitalSignDto vitalSignToUpdate);
+        VitalSignDto? GetVitalSignById(int vitalSignId);
+        VitalSignDto? GetVitalSignByPetId(int petId);
 
     }
 }

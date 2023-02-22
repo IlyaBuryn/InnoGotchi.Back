@@ -4,10 +4,10 @@ namespace InnoGotchi.BusinessLogic.Interfaces
 {
     public interface IFarmService
     {
-        public Task<int?> CreateFarmAsync(FarmDto farmToCreate);
-        public Task<bool> DeleteFarmAsync(int farmId);
-        public Task<bool> UpdateFarmAsync(FarmDto farmToUpdate);
-        public Task<FarmDto?> GetFarmByIdAsync(int farmId);
-        public Task<FarmDto?> GetFarmByUserIdAsync(int userId);
+        Task<int?> CreateFarmAsync(FarmDto farmToCreate);
+        Task<bool> DeleteFarmAsync(int farmId);
+        Task<bool> UpdateFarmAsync(FarmDto farmToUpdate);
+        Task<FarmDto?> GetFarmByIdAsync(int farmId);
+        Task<FarmDto?> GetFarmByUserIdAsync(int userId);
     }
 }

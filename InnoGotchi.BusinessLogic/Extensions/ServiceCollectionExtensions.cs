@@ -1,7 +1,6 @@
 ﻿using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.BusinessLogic.Services;
 using InnoGotchi.BusinessLogic.MappingProfiles;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using InnoGotchi.DataAccess.Extensions;
 using System.Reflection;
@@ -9,7 +8,7 @@ using InnoGotchi.Components.Extensions;
 
 namespace InnoGotchi.BusinessLogic.Extensions
 {
-    public static class BusinessLogicExtensions
+    public static class ServiceCollectionExtensions
     {
         public static void ConfigureBusinessLogicLayer(this IServiceCollection builder, string connectionString)
         {
@@ -18,11 +17,6 @@ namespace InnoGotchi.BusinessLogic.Extensions
             ConfigureDtoValidators(builder);
 
             builder.ConfigureDataAccessLayer(connectionString);
-        }
-
-        public static void ConfigureAppFeatures(this IApplicationBuilder app)
-        {
-            app.ConfigureMigrations();
         }
 
         private static void ConfigureServices(IServiceCollection service)

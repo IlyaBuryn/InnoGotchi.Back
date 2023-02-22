@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace InnoGotchi.DataAccess.Extensions
 {
-    public static class MigrationExtension
+    public static class ApplicationBuilderExtensions
     {
         public static void Migrate<TContext>(this IApplicationBuilder builder) where TContext : DbContext
         {
