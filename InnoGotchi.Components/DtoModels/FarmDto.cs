@@ -5,6 +5,6 @@
         public string Name { get; set; }
         public int IdentityUserId { get; set; }
 
-        public virtual List<PetDto>? Pets { get; set; }
+        public List<PetDto>? Pets { get; set; }
     }
 }

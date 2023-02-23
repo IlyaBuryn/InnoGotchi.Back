@@ -8,6 +8,6 @@
         public int HappinessDaysCount { get; set; }
         public bool IsAlive { get; set; }
 
-        public virtual PetDto? Pet { get; set; }
+        public PetDto? Pet { get; set; }
     }
 }

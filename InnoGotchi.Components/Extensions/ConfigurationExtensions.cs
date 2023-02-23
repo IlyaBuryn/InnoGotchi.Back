@@ -2,9 +2,9 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace InnoGotchi.Components.Settings
+namespace InnoGotchi.Components.Extensions
 {
-    public static class JwtSettings
+    public static class ConfigurationExtensions
     {
         public static TokenValidationParameters GetJwtOptions(this IConfiguration configuration)
         {
