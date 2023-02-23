@@ -13,15 +13,12 @@ namespace InnoGotchi.API.Controllers
     [Route("innogotchi/collab")]
     public class CollaboratorController : ControllerBase
     {
-        private readonly ICollaboratorService _collabService;
-        private readonly IValidator<CollaboratorDto> _collabValidator;
+        private readonly ICollaboratorService _collaboratorService;
 
         public CollaboratorController(
-            ICollaboratorService collabService,
-            IValidator<CollaboratorDto> collabValidator)
+            ICollaboratorService collaboratorService)
         {
-            _collabService = collabService;
-            _collabValidator = collabValidator;
+            _collaboratorService = collaboratorService;
         }
 
 
@@ -30,14 +27,13 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddCollabAsync([FromBody] CollaboratorDto collab)
+        public async Task<IActionResult> AddCollabAsync([FromBody] CollaboratorDto collaborator)
         {
-            var validationResult = await _collabValidator.ValidateAsync(collab);
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new DataValidationException();
             }
-            int? response = await _collabService.CreateCollaboratorAsync(collab);
+            int? response = await _collaboratorService.CreateCollaboratorAsync(collaborator);
             return CreatedAtAction(nameof(AddCollabAsync), response);
         }
 
@@ -48,7 +44,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RemoveCollabAsync([FromRoute] int userId)
         {
-            var response = await _collabService.DeleteCollaboratorByUserIdAsync(userId);
+            var response = await _collaboratorService.DeleteCollaboratorByUserIdAsync(userId);
             return Ok(response);
         }
 
@@ -59,7 +55,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetCollabsByFarm([FromRoute] int farmId)
         {
-            var response = _collabService.GetAllCollaboratorsByFarm(farmId);
+            var response = _collaboratorService.GetAllCollaboratorsByFarmAsync(farmId);
             return Ok(response);
         }
 
@@ -70,7 +66,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         public IActionResult GetCollabsByUser([FromRoute] int userId)
         {
-            var response = _collabService.GetAllCollaboratorsByUser(userId);
+            var response = _collaboratorService.GetAllCollaboratorsByUserAsync(userId);
             return Ok(response);
         }
     }

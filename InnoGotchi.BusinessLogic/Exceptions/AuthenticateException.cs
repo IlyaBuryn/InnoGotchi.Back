@@ -8,5 +8,10 @@ namespace InnoGotchi.BusinessLogic.Exceptions
             : base("Username or password is incorrect!")
         {
         }
+
+        public AuthenticateException(string message)
+        : base(message)
+        {
+        }
     }
 }

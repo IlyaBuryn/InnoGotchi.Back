@@ -13,15 +13,12 @@ namespace InnoGotchi.API.Controllers
     [Route("innogotchi/body-parts")]
     public class BodyPartController : ControllerBase
     {
-        private readonly IBodyPartService _bpService;
-        private readonly IValidator<BodyPartDto> _bpValidator;
+        private readonly IBodyPartService _bodyPartService;
 
         public BodyPartController(
-            IBodyPartService bpService, 
-            IValidator<BodyPartDto> bpValidator)
+            IBodyPartService bodyPartService)
         {
-            _bpService = bpService;
-            _bpValidator = bpValidator;
+            _bodyPartService = bodyPartService;
         }
 
 
@@ -32,12 +29,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddBodyPartAsync([FromBody] BodyPartDto bodyPart)
         {
-            var validationResult = await _bpValidator.ValidateAsync(bodyPart);
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new DataValidationException();
             }
-            int? response = await _bpService.AddNewBodyPartAsync(bodyPart);
+            int? response = await _bodyPartService.AddNewBodyPartAsync(bodyPart);
             return CreatedAtAction(nameof(AddBodyPartAsync), response);
         }
 
@@ -49,12 +45,11 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBodyPartAsync([FromBody] BodyPartDto bodyPart)
         {
-            var validationResult = await _bpValidator.ValidateAsync(bodyPart);
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new DataValidationException();
             }
-            var response = await _bpService.UpdateBodyPartAsync(bodyPart);
+            var response = await _bodyPartService.UpdateBodyPartAsync(bodyPart);
             return Ok(response);
         }
 
@@ -63,9 +58,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteBodyPartAsync([FromRoute] int bpId)
+        public async Task<IActionResult> DeleteBodyPartAsync([FromRoute] int bodyPartId)
         {
-            var response = await _bpService.RemoveBodyPartAsync(bpId);
+            var response = await _bodyPartService.RemoveBodyPartAsync(bodyPartId);
             return Ok(response);
         }
 
@@ -74,10 +69,10 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<BodyPartDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public IActionResult GetBodyParts()
+        public async Task<IActionResult> GetBodyPartsAsync()
         {
 
-            var response = _bpService.GetBodyParts();
+            var response = await _bodyPartService.GetBodyPartsAsync();
             return Ok(response);
         }
 
@@ -86,9 +81,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<BodyPartDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public IActionResult GetBodyPartsByPet([FromRoute] int petId)
+        public async Task<IActionResult> GetBodyPartsByPetAsync([FromRoute] int petId)
         {
-            var response = _bpService.GetBodyPartsByPetId(petId);
+            var response = await _bodyPartService.GetBodyPartsByPetIdAsync(petId);
             return Ok(response);
         }
 
@@ -97,9 +92,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<BodyPartDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public IActionResult GetBodyPartsByBodyPartType([FromRoute] int typeId)
+        public async Task<IActionResult> GetBodyPartsByBodyPartTypeAsync([FromRoute] int bodyPartTypeId)
         {
-            var response = _bpService.GetBodyPartsByTypeId(typeId);
+            var response = await _bodyPartService.GetBodyPartsByTypeIdAsync(bodyPartTypeId);
             return Ok(response);
         }
 
@@ -108,9 +103,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(BodyPartDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetBodyPartsByIdAsync([FromRoute] int bpId)
+        public async Task<IActionResult> GetBodyPartsByIdAsync([FromRoute] int bodyPartId)
         {
-            var response = await _bpService.GetBodyPartByIdAsync(bpId);
+            var response = await _bodyPartService.GetBodyPartByIdAsync(bodyPartId);
             return Ok(response);
         }
 
@@ -120,9 +115,9 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddBodyPartTypeAsync([FromBody] BodyPartTypeDto bpType)
+        public async Task<IActionResult> AddBodyPartTypeAsync([FromBody] BodyPartTypeDto bodyPartType)
         {
-            int? response = await _bpService.CreateBodyPartTypeAsync(bpType);
+            int? response = await _bodyPartService.CreateBodyPartTypeAsync(bodyPartType);
             return Ok(response);
         }
 
@@ -131,9 +126,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteBodyPartTypeAsync([FromRoute] int typeId)
+        public async Task<IActionResult> DeleteBodyPartTypeAsync([FromRoute] int bodyPartTypeId)
         {
-            var response = await _bpService.DeleteBodyPartTypeAsync(typeId);
+            var response = await _bodyPartService.DeleteBodyPartTypeAsync(bodyPartTypeId);
             return Ok(response);
         }
     }

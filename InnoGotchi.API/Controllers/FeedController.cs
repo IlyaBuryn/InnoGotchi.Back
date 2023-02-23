@@ -14,14 +14,11 @@ namespace InnoGotchi.API.Controllers
     public class FeedController : ControllerBase
     {
         private readonly IFeedService _feedService;
-        private readonly IValidator<FeedDto> _feedValidator;
 
         public FeedController(
-            IFeedService feedService,
-            IValidator<FeedDto> feedValidator)
+            IFeedService feedService)
         {
             _feedService = feedService;
-            _feedValidator = feedValidator;
         }
 
         [HttpPost("food")]
@@ -31,8 +28,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> FeedPetAsync([FromBody] FeedDto feedInfo)
         {
-            var validationResult = await _feedValidator.ValidateAsync(feedInfo);
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new DataValidationException();
             }
@@ -59,7 +55,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RecalculatePetsNeedsAsync([FromRoute] int farmId)
         {
-            await _feedService.RecalculatePetsNeedsAsync((int)farmId);
+            await _feedService.RecalculateVitalSignsAsync((int)farmId);
             return Ok(true);
         }
 
@@ -70,7 +66,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public IActionResult GetFeedsFoodInfo([FromRoute] int farmId)
         {
-            var response = _feedService.GetFeedPeriods(farmId, BusinessLogic.Services.FeedActionType.Feed);
+            var response = _feedService.GetFeedPeriodsAsync(farmId, BusinessLogic.Services.FeedActionType.Feed);
             return Ok(response);
         }
 
@@ -81,7 +77,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public IActionResult GetFeedsDrinkInfo([FromRoute] int farmId)
         {
-            var response = _feedService.GetFeedPeriods(farmId, BusinessLogic.Services.FeedActionType.Drink);
+            var response = _feedService.GetFeedPeriodsAsync(farmId, BusinessLogic.Services.FeedActionType.Drink);
             return Ok(response);
         }
     }

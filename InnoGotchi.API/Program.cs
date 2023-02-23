@@ -1,5 +1,7 @@
+using FluentValidation.AspNetCore;
 using InnoGotchi.API.Middleware;
 using InnoGotchi.BusinessLogic.Extensions;
+using InnoGotchi.Components.Extensions;
 using InnoGotchi.Components.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
@@ -8,11 +10,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    options.JsonSerializerOptions.WriteIndented = true;
-});
+builder.Services.AddControllers(options => 
+    options.SuppressAsyncSuffixInActionNames = false)
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    })
+    .AddFluentValidation();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
@@ -31,10 +36,13 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = JwtSettings.GetJwtOptions(builder.Configuration);
+        options.TokenValidationParameters = builder.Configuration.GetJwtOptions();
     });
 
 builder.Services.AddCors();

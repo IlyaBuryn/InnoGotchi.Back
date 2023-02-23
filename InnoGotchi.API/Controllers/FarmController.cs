@@ -15,16 +15,13 @@ namespace InnoGotchi.API.Controllers
     {
         private readonly IFarmService _farmService;
         private readonly IFeedService _feedService;
-        private readonly IValidator<FarmDto> _farmValidator;
 
         public FarmController(
             IFarmService farmService, 
-            IFeedService feedService,
-            IValidator<FarmDto> farmValidator)
+            IFeedService feedService)
         {
             _farmService = farmService;
             _feedService = feedService;
-            _farmValidator = farmValidator;
         }
 
 
@@ -35,8 +32,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreateFarmAsync([FromBody] FarmDto farm)
         {
-            var validationResult = await _farmValidator.ValidateAsync(farm);
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new DataValidationException();
             }
@@ -63,8 +59,7 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFarmAsync([FromBody] FarmDto farmToUpdate)
         {
-            var validationResult = await _farmValidator.ValidateAsync(farmToUpdate);
-            if (!validationResult.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new DataValidationException();
             }
@@ -81,7 +76,7 @@ namespace InnoGotchi.API.Controllers
         {
             var response = await _farmService.GetFarmByIdAsync(farmId);
             if (response != null && response.Id != 0)
-                await _feedService.RecalculatePetsNeedsAsync(response.Id);
+                await _feedService.RecalculateVitalSignsAsync(response.Id);
 
             return Ok(response);
         }
@@ -95,7 +90,7 @@ namespace InnoGotchi.API.Controllers
         {
             var response = await _farmService.GetFarmByUserIdAsync(userId);
             if (response != null && response.Id != 0)
-                await _feedService.RecalculatePetsNeedsAsync(response.Id);
+                await _feedService.RecalculateVitalSignsAsync(response.Id);
 
             return Ok(response);
         }
