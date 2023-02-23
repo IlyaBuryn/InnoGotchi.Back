@@ -10,39 +10,38 @@ namespace InnoGotchi.BusinessLogic.Services
     public class FarmService : IFarmService
     {
         private readonly IRepository<Farm> _farmRep;
-        private readonly IRepository<Collaborator> _collabRep;
         private readonly IMapper _mapper;
 
         public FarmService(IRepository<Farm> farmRep,
-            IRepository<Collaborator> collabRep,
             IMapper mapper)
         { 
-            _collabRep = collabRep;
             _farmRep = farmRep;
             _mapper = mapper;
         }
 
         public async Task<int?> CreateFarmAsync(FarmDto farmToCreate)
         {
-            var farm = await _farmRep.GetOneAsync(x => x.Name == farmToCreate.Name);
-            if (farm != null)
+            var farmName = await _farmRep.GetOneAsync(x => x.Name == farmToCreate.Name);
+            if (farmName != null)
             {
                 throw new DataValidationException("This farm is already exist!");
             }
 
             var farmWithUser = await _farmRep
                 .GetOneAsync(x => x.IdentityUserId == farmToCreate.IdentityUserId);
+
             if (farmWithUser != null)
             {
                 throw new NotFoundException(nameof(farmWithUser));
             }
 
-            return await _farmRep.AddAsync(_mapper.Map<Farm>(farmToCreate));
+            var farm = _mapper.Map<Farm>(farmToCreate);
+            return await _farmRep.AddAsync(farm);
         }
 
         public async Task<bool> DeleteFarmAsync(int farmId)
         {
-            var farm = await _farmRep.GetByIdAsync(farmId);
+            var farm = await _farmRep.GetOneByIdAsync(farmId);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
@@ -53,7 +52,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<FarmDto?> GetFarmByIdAsync(int farmId)
         {
-            var farm = await _farmRep.GetByIdAsync(farmId);
+            var farm = await _farmRep.GetOneByIdAsync(farmId);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
@@ -75,16 +74,16 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdateFarmAsync(FarmDto farmToUpdate)
         {
-            var farm = await _farmRep.GetByIdAsync(farmToUpdate.Id);
+            var farm = await _farmRep.GetOneByIdAsync(farmToUpdate.Id);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
             }
 
-            var tmp = await _farmRep.GetOneAsync(x => x.Name == farmToUpdate.Name);
-            if (tmp != null)
+            var farmName = await _farmRep.GetOneAsync(x => x.Name == farmToUpdate.Name);
+            if (farmName != null)
             {
-                throw new DataValidationException("Incorrect pet data!");
+                throw new DataValidationException("This farm is already exist!");
             }
 
             farm.Name = farmToUpdate.Name;

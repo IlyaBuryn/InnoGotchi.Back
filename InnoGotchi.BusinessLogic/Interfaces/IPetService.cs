@@ -8,9 +8,9 @@ namespace InnoGotchi.BusinessLogic.Interfaces
         Task<int?> AddNewPetAsync(PetDto petToAdd);
         Task<bool> UpdatePetAsync(PetDto petToUpdate);
         Task<bool> RemovePetAsync(int petId);
-        Task<List<PetDto>> GetPetsAsyncAsPageAsync(int pageNumber, int pageSize, SortFilter sortFilter);
-        int GetAllPetsCount();
-        List<PetDto> GetPetsByFarmId(int farmId);
-        PetDto? GetPetById(int petId);
+        Task<List<PetDto>> GetPetsAsPageAsync(int pageNumber, int pageSize, SortFilter sortFilter);
+        Task<int> GetAllPetsCountAsync();
+        Task<List<PetDto>> GetPetsByFarmIdAsync(int farmId);
+        Task<PetDto?> GetPetByIdAsync(int petId);
     }
 }

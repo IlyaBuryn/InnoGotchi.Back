@@ -7,13 +7,11 @@ namespace InnoGotchi.BusinessLogic.Interfaces
         Task<int?> AddNewBodyPartAsync(BodyPartDto bodyPartToAdd);
         Task<bool> UpdateBodyPartAsync(BodyPartDto bodyPartToUpdate);
         Task<bool> RemoveBodyPartAsync(int bodyPartId);
-        List<BodyPartDto> GetBodyParts();
-        List<BodyPartDto> GetBodyPartsByPetId(int petId);
-        List<BodyPartDto> GetBodyPartsByTypeId(int typeId);
+        Task<List<BodyPartDto>> GetBodyPartsAsync();
+        Task<List<BodyPartDto>> GetBodyPartsByPetIdAsync(int petId);
+        Task<List<BodyPartDto>> GetBodyPartsByTypeIdAsync(int bodyPartTypeId);
         Task<BodyPartDto?> GetBodyPartByIdAsync(int bodyPartId);
-
-
-        Task<int?> CreateBodyPartTypeAsync(BodyPartTypeDto bodyPartType);
+        Task<int?> CreateBodyPartTypeAsync(BodyPartTypeDto bodyPartTypeToAdd);
         Task<bool> DeleteBodyPartTypeAsync(int bodyPartTypeId);
     }
 }

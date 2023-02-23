@@ -5,7 +5,7 @@ using InnoGotchi.Components.DtoModels;
 using InnoGotchi.Components.Enums;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace InnoGotchi.BusinessLogic.Services
 {
@@ -13,18 +13,18 @@ namespace InnoGotchi.BusinessLogic.Services
     {
         private readonly IRepository<Pet> _petRep;
         private readonly IRepository<Farm> _farmRep;
-        private readonly IRepository<BodyPartPet> _relationRep;
+        private readonly IRepository<BodyPartPet> _bodyPartPetRep;
         private readonly IMapper _mapper;
 
         public PetService(IRepository<Pet> petRep,
             IRepository<Farm> farmRep,
-            IRepository<BodyPartPet> relationRep,
+            IRepository<BodyPartPet> bodyPartPetRep,
             IMapper mapper)
         {
             _farmRep = farmRep;
             _petRep = petRep;
             _mapper = mapper;
-            _relationRep = relationRep;
+            _bodyPartPetRep = bodyPartPetRep;
         }
 
         public async Task<int?> AddNewPetAsync(PetDto petToAdd)
@@ -35,7 +35,7 @@ namespace InnoGotchi.BusinessLogic.Services
                 throw new DataValidationException("This pet is already exist!");
             }
 
-            var farm = await _farmRep.GetByIdAsync(petToAdd.FarmId);
+            var farm = await _farmRep.GetOneByIdAsync(petToAdd.FarmId);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
@@ -51,20 +51,21 @@ namespace InnoGotchi.BusinessLogic.Services
             {
                 foreach (var item in _mapper.Map<ICollection<BodyPart>>(petToAdd.BodyParts))
                 {
-                    await _relationRep.AddAsync(new BodyPartPet() { BodyPartsId = item.Id, PetsId = (int)resultId });
+                    await _bodyPartPetRep.AddAsync(
+                        new BodyPartPet() 
+                        { 
+                            BodyPartsId = item.Id, 
+                            PetsId = (int)resultId 
+                        });
                 }
             }
 
             return resultId;
         }
 
-        public PetDto? GetPetById(int petId)
+        public async Task<PetDto?> GetPetByIdAsync(int petId)
         {
-            var pet = _petRep.GetAll(x => x.Id == petId)
-                .Include(x => x.BodyParts)
-                .Include(x => x.VitalSign)
-                .FirstOrDefault();
-
+            var pet = await _petRep.GetOneByIdAsync(petId, x => x.BodyParts, x => x.VitalSign);
             if (pet == null)
             {
                 throw new NotFoundException(nameof(pet));
@@ -73,30 +74,31 @@ namespace InnoGotchi.BusinessLogic.Services
             return _mapper.Map<PetDto>(pet);
         }
 
-        public async Task<List<PetDto>> GetPetsAsyncAsPageAsync(int pageNumber, int pageSize, SortFilter sortFilter)
+        public async Task<List<PetDto>> GetPetsAsPageAsync(int pageNumber, int pageSize, SortFilter sortFilter)
         {
             if (pageSize <= 0 || pageNumber <= 0)
             {
                 throw new DataValidationException("Incorrect page number and(or) size provided!");
             }
 
-            IQueryable<Pet> pets = FilterPage(sortFilter);
+            var pets = await FilterPageAsync(sortFilter);
 
-            var page =  await CreatePageAsync(pets, pageNumber, pageSize);
+            var page =  await _petRep.GetPageAsync(pets, pageNumber, pageSize);
 
             return _mapper.Map<List<PetDto>>(page);
         }
 
-        public int GetAllPetsCount()
+        public async Task<int> GetAllPetsCountAsync()
         {
-            return _petRep.GetAll(x => x.VitalSign.IsAlive).Count();
+            return await _petRep.GetCountAsync(x => x.VitalSign.IsAlive);
         }
 
-        public List<PetDto> GetPetsByFarmId(int farmId)
+        public async Task<List<PetDto>> GetPetsByFarmIdAsync(int farmId)
         {
-            var pets = _petRep.GetAll(x => x.FarmId == farmId)
-                .Include(x => x.BodyParts)
-                .Include(x => x.VitalSign);
+            var pets = await _petRep.GetManyAsync(
+                expression: x => x.FarmId == farmId,
+                includeProperties: new Expression<Func<Pet, object>>[] { x => x.BodyParts, x => x.VitalSign });
+
             if (pets == null)
             {
                 throw new NotFoundException(nameof(Farm));
@@ -107,7 +109,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> RemovePetAsync(int petId)
         {
-            var pet = await _petRep.GetByIdAsync(petId);
+            var pet = await _petRep.GetOneByIdAsync(petId);
             if (pet == null)
             {
                 throw new NotFoundException(nameof(pet));
@@ -118,14 +120,14 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdatePetAsync(PetDto petToUpdate)
         {
-            var pet = await _petRep.GetByIdAsync(petToUpdate.Id);
+            var pet = await _petRep.GetOneByIdAsync(petToUpdate.Id);
             if (pet == null)
             {
                 throw new NotFoundException(nameof(pet));
             }
 
-            var tmp = await _petRep.GetOneAsync(x => x.Name == petToUpdate.Name);
-            if (tmp != null)
+            var petName = await _petRep.GetOneAsync(x => x.Name == petToUpdate.Name);
+            if (petName != null)
             {
                 throw new DataValidationException("Incorrect pet data!");
             }
@@ -135,36 +137,33 @@ namespace InnoGotchi.BusinessLogic.Services
             return await _petRep.UpdateAsync(pet);
         }
 
-        public virtual IOrderedQueryable<Pet> FilterPage(SortFilter sortFilter)
+        private async Task<IQueryable<Pet>> FilterPageAsync(SortFilter sortFilter)
         {
+            var includeProperties = new Expression<Func<Pet, object>>[] { x => x.BodyParts, x => x.VitalSign };
+            Expression<Func<Pet, bool>> expression = x => x.VitalSign.IsAlive;
+
             switch (sortFilter)
             {
                 case SortFilter.ByHappinessDays:
-                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
-                        .Include(x => x.BodyParts)
-                        .Include(x => x.VitalSign).OrderByDescending(x => x.VitalSign.HappinessDaysCount);
-                case SortFilter.ByAge:
-                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
-                        .Include(x => x.BodyParts)
-                        .Include(x => x.VitalSign).OrderByDescending(x => x.CreationDate);
-                case SortFilter.ByHungerLevel:
-                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
-                        .Include(x => x.BodyParts)
-                        .Include(x => x.VitalSign).OrderBy(x => x.VitalSign.HungerLevel);
-                case SortFilter.ByThirstyLevel:
-                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
-                        .Include(x => x.BodyParts)
-                        .Include(x => x.VitalSign).OrderBy(x => x.VitalSign.ThirstyLevel);
-                default:
-                    return _petRep.GetAll(x => x.VitalSign.IsAlive)
-                        .Include(x => x.BodyParts)
-                        .Include(x => x.VitalSign).OrderByDescending(x => x.VitalSign.HappinessDaysCount);
-            }
-        }
+                    return await _petRep.GetManyAsync(
+                        expression, orderBy: x => x.VitalSign.HappinessDaysCount, includeProperties);
 
-        public virtual async Task<Page<T>> CreatePageAsync<T>(IQueryable<T> set, int pageNumber, int pageSize) where T : class
-        {
-            return await Page<T>.CreateFromQueryAsync(set, pageNumber, pageSize);
+                case SortFilter.ByAge:
+                    return await _petRep.GetManyAsync(
+                        expression, orderBy: x => x.CreationDate, includeProperties);
+
+                case SortFilter.ByHungerLevel:
+                    return await _petRep.GetManyAsync(
+                        expression, orderBy: x => x.VitalSign.HungerLevel, includeProperties);
+
+                case SortFilter.ByThirstyLevel:
+                    return await _petRep.GetManyAsync(
+                        expression, orderBy: x => x.VitalSign.ThirstyLevel, includeProperties);
+
+                default:
+                    return await _petRep.GetManyAsync(
+                        expression, orderBy: x => x.VitalSign.HappinessDaysCount, includeProperties);
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ namespace InnoGotchi.BusinessLogic.Interfaces
 {
     public interface IIdentityService
     {
-        AuthenticateResponseDto Authenticate(AuthenticateRequestDto model);
+        Task<AuthenticateResponseDto> AuthenticateAsync(AuthenticateRequestDto model);
         Task<AuthenticateResponseDto> RegisterAsync(IdentityUserDto userToRegister);
         Task<bool> UpdateUserAsync(IdentityUserDto userToUpdate, UpdateType updateType);
         Task<AuthenticateResponseDto> GetReadonlyUserData(string username);

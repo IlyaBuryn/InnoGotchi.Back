@@ -2,7 +2,6 @@
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace InnoGotchi.DataAccess.Repositories
@@ -24,36 +23,6 @@ namespace InnoGotchi.DataAccess.Repositories
             await _context.SaveChangesAsync();
             return entity.Id;
         }
-
-        public async Task<T?> GetOneAsync(Expression<Func<T, bool>>? predicate = null)
-        {
-            return predicate == null
-                ? await _dbSet.FirstOrDefaultAsync()
-                : await _dbSet.FirstOrDefaultAsync(predicate);
-        }
-
-        public IQueryable<T> GetAll(Expression<Func<T, bool>>? predicate = null)
-        {
-            return predicate == null
-                ? _dbSet.OrderByDescending(e => e.Id)
-                : _dbSet.OrderByDescending(e => e.Id).Where(predicate);
-        }
-
-        public async Task<Page<T>> GetAllAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null, params string[] includeValues)
-        {
-            IQueryable<T> set = _dbSet.OrderByDescending(e => e.Id);
-            for (int i = 0; i < includeValues.Length; i++)
-                set = set.Include(includeValues[i]);
-
-            if (predicate == null)
-                return await CreatePageAsync(set, pageNumber, pageSize);
-
-            set = set.Where(predicate);
-
-            return await CreatePageAsync(set, pageNumber, pageSize);
-        }
-
-        public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(new object[] { id });
 
         public async Task<bool> RemoveAsync(int id)
         {
@@ -78,9 +47,114 @@ namespace InnoGotchi.DataAccess.Repositories
             return false;
         }
 
-        public async Task<Page<T>> CreatePageAsync(IQueryable<T> set, int pageNumber, int pageSize)
+        public async Task<T?> GetOneAsync(params Expression<Func<T, object>>[] includeProperties)
         {
-            return await Page<T>.CreateFromQueryAsync(set, pageNumber, pageSize);
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<T?> GetOneAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            if (expression != null)
+            {
+                query = query.Where(expression);
+            }
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<T?> GetOneByIdAsync(int id, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            return await query.Where(x => x.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<int> GetCountAsync(Expression<Func<T, bool>> expression)
+        {
+            int resultCount;
+
+            if (expression != null)
+            {
+                resultCount = _dbSet.Where(expression).Count();
+            }
+            else
+            {
+                resultCount = _dbSet.Count();
+            }
+
+            return await Task.FromResult(resultCount);
+        }
+
+        public async Task<IQueryable<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            return await Task.FromResult(query);
+        }
+
+        public async Task<IQueryable<T>> GetManyByIdAsync(int id, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            query = query.Where(x => x.Id == id);
+
+            return await Task.FromResult(query);
+        }
+        
+        public async Task<IQueryable<T>> GetManyAsync(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            if (expression != null)
+            {
+                query = query.Where(expression);
+            }
+
+            return await Task.FromResult(query);
+        }
+
+        public async Task<IQueryable<T>> GetManyAsync(Expression<Func<T, bool>> expression, Func<T, object> orderBy, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = GetIncludeProperties(includeProperties);
+
+            if (expression != null)
+            {
+                query = query.Where(expression);
+            }
+
+            if (orderBy != null)
+            {
+                query = query.OrderBy(orderBy).AsQueryable();
+            }
+
+            return await Task.FromResult(query);
+        }
+
+        public async Task<IQueryable<T>> GetPageAsync(IQueryable<T> set, int pageNumber, int pageSize)
+        {
+            int skip = (pageNumber - 1) * pageSize;
+            set = set.Skip(skip).Take(pageSize);
+
+            return await Task.FromResult(set);
+        }
+
+        private IQueryable<T> GetIncludeProperties(params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (includeProperties != null)
+            {
+                foreach (var includeProperty in includeProperties)
+                {
+                    query = query.Include(includeProperty);
+                }
+            }
+
+            return query;
         }
     }
 }

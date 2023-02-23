@@ -6,7 +6,7 @@ namespace InnoGotchi.BusinessLogic.Interfaces
     {
         Task<int?> CreateCollaboratorAsync(CollaboratorDto collaboratorToCreate);
         Task<bool> DeleteCollaboratorByUserIdAsync(int collaboratorId);
-        List<CollaboratorDto> GetAllCollaboratorsByFarm(int farmId);
-        List<CollaboratorDto> GetAllCollaboratorsByUser(int userId);
+        Task<List<CollaboratorDto>> GetAllCollaboratorsByFarmAsync(int farmId);
+        Task<List<CollaboratorDto>> GetAllCollaboratorsByUserAsync(int userId);
     }
 }

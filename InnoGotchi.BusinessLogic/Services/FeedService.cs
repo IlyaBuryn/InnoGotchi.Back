@@ -22,10 +22,10 @@ namespace InnoGotchi.BusinessLogic.Services
         private readonly IRepository<Pet> _petRep;
         private readonly IRepository<VitalSign> _vitalSignRep;
         private readonly IRepository<Farm> _farmRep;
-        private readonly IRepository<Collaborator> _collabRep;
+        private readonly IRepository<Collaborator> _collaboratorRep;
         private readonly IMapper _mapper;
 
-        private bool _recalculateHappyDays = true;
+        private bool _shouldUpdateVitalSigns;
 
         public FeedService(IRepository<Feed> feedRep,
             IRepository<IdentityUser> userRep,
@@ -33,7 +33,7 @@ namespace InnoGotchi.BusinessLogic.Services
             IMapper mapper,
             IRepository<VitalSign> vitalSignRep,
             IRepository<Farm> farmRep,
-            IRepository<Collaborator> collabRep)
+            IRepository<Collaborator> collaboratorRep)
         {
             _feedRep = feedRep;
             _userRep = userRep;
@@ -41,33 +41,42 @@ namespace InnoGotchi.BusinessLogic.Services
             _mapper = mapper;
             _vitalSignRep = vitalSignRep;
             _farmRep = farmRep;
-            _collabRep = collabRep;
+            _collaboratorRep = collaboratorRep;
         }
 
+        private class ValuePair
+        {
+            public ValuePair(int feedingUpdateCycles, Feed? lastFeeding)
+            {
+                FeedingUpdateCycles = feedingUpdateCycles;
+                LastFeeding = lastFeeding;
+            }
+
+            public int FeedingUpdateCycles { get; set; }
+            public Feed? LastFeeding { get; set; }
+        }
 
         public async Task<int?> FeedPetAsync(FeedDto feedData, FeedActionType feedActionType)
         {
-            var pet = await _petRep.GetByIdAsync(feedData.PetId);
+            var pet = await _petRep.GetOneByIdAsync(feedData.PetId);
             if (pet == null)
             {
                 throw new NotFoundException(nameof(pet));
             }
 
-            var farm = await _farmRep.GetByIdAsync(pet.FarmId);
+            var farm = await _farmRep.GetOneByIdAsync(pet.FarmId);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
             }
 
-            if ((await _collabRep.GetOneAsync(x => x.FarmId == farm.Id && x.IdentityUserId == feedData.IdentityUserId)) == null)
+            var collaborator = await _collaboratorRep.GetOneAsync(x => x.FarmId == farm.Id && x.IdentityUserId == feedData.IdentityUserId);
+            if (collaborator == null && farm.IdentityUserId != feedData.IdentityUserId)
             {
-                if (farm.IdentityUserId != feedData.IdentityUserId)
-                {
-                    throw new DataValidationException("The user does't have access to this pet!");
-                }
+                throw new DataValidationException("The user does't have access to this pet!");
             }
 
-            var user = await _userRep.GetByIdAsync(feedData.IdentityUserId);
+            var user = await _userRep.GetOneByIdAsync(feedData.IdentityUserId);
             if (user == null)
             {
                 throw new NotFoundException(nameof(user));
@@ -87,12 +96,19 @@ namespace InnoGotchi.BusinessLogic.Services
             if (feedActionType == FeedActionType.Feed)
             {
                 vitalSign.HungerLevel -= feedData.FoodCount;
-                if (vitalSign.HungerLevel < 0) vitalSign.HungerLevel = 0;
+                if (vitalSign.HungerLevel < 0)
+                {
+                    vitalSign.HungerLevel = 0;
+                }
             }
+
             if (feedActionType == FeedActionType.Drink)
             {
                 vitalSign.ThirstyLevel -= feedData.WaterCount;
-                if (vitalSign.ThirstyLevel < 0) vitalSign.ThirstyLevel = 0;
+                if (vitalSign.ThirstyLevel < 0)
+                {
+                    vitalSign.ThirstyLevel = 0;
+                }
             }
 
             var updateResult = await _vitalSignRep.UpdateAsync(vitalSign);
@@ -106,9 +122,9 @@ namespace InnoGotchi.BusinessLogic.Services
             return null;
         }
 
-        public double? GetFeedPeriods(int farmId, FeedActionType feedActionType)
+        public async Task<double?> GetFeedPeriodsAsync(int farmId, FeedActionType feedActionType)
         {
-            var farm = _farmRep.GetAll(x => x.Id == farmId).Include(x => x.Pets).FirstOrDefault();
+            var farm = await _farmRep.GetOneByIdAsync(farmId, x => x.Pets);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
@@ -119,192 +135,172 @@ namespace InnoGotchi.BusinessLogic.Services
             IQueryable<Feed?> feedsInfo = Enumerable.Empty<Feed>().AsQueryable();
             if (feedActionType == FeedActionType.Feed)
             {
-                feedsInfo = _feedRep.GetAll(x => pets.Contains(x.PetId)
+                feedsInfo = await _feedRep.GetAllAsync(
+                    x => pets.Contains(x.PetId)
                     && x.IdentityUserId != null
                     && x.FoodCount > 0);
             }
             else if (feedActionType == FeedActionType.Drink)
             {
-                feedsInfo = _feedRep.GetAll(x => pets.Contains(x.PetId)
+                feedsInfo = await _feedRep.GetAllAsync(
+                    x => pets.Contains(x.PetId)
                     && x.IdentityUserId != null
                     && x.WaterCount > 0);
             }
-            else return null;
+            else
+            {
+                return null;
+            }
 
             var dates = new List<int>();
-            if (feedsInfo.Count() != 0)
+
+            if (feedsInfo.Count() == 0)
             {
-                foreach (var item in feedsInfo)
-                {
-                    dates.Add((DateTime.Now - item.FeedTime).Hours);
-                }
-                return Math.Round(dates.Average(), 3);
+                return 0;
             }
-            return 0;
+
+            foreach (var item in feedsInfo)
+            {
+                dates.Add((DateTime.Now - item.FeedTime).Hours);
+            }
+
+            return Math.Round(dates.Average(), 3);
         }
 
-        public async Task RecalculatePetsNeedsAsync(int farmId)
+        public async Task RecalculateVitalSignsAsync(int farmId)
         {
-            var farm = _farmRep.GetAll(x => x.Id == farmId).Include(x => x.Pets).FirstOrDefault();
+            _shouldUpdateVitalSigns = false;
+            var farm = await _farmRep.GetOneByIdAsync(farmId, x => x.Pets);
             if (farm == null)
             {
                 throw new NotFoundException(nameof(farm));
             }
 
-            foreach(var pet in farm.Pets)
+            var pets = await _petRep.GetAllAsync(x => x.FarmId == farmId, x => x.VitalSign);
+            foreach(var pet in pets)
             {
-                var petVitalSign = await _vitalSignRep.GetOneAsync(x => x.PetId == pet.Id);
+                var petVitalSign = pet.VitalSign;
                 if (petVitalSign == null || !petVitalSign.IsAlive)
                 {
                     continue;
                 }
 
-                var lastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
-                    && x.FoodCount != 0).FirstOrDefault();
-                await RecalculatePetLevelsAsync(pet, petVitalSign, new Feed(), lastFeedTime, FeedActionType.Feed);
-                var lastDrinkTime = _feedRep.GetAll(x => x.PetId == pet.Id
-                    && x.WaterCount != 0).FirstOrDefault();
-                await RecalculatePetLevelsAsync(pet, petVitalSign, new Feed(), lastDrinkTime, FeedActionType.Drink);
+                var feedingCycles = new Dictionary<FeedActionType, ValuePair>();
+
+                var lastFeedTime = await _feedRep.GetOneAsync(x => x.PetId == pet.Id && x.FoodCount != 0);
+                feedingCycles.Add(FeedActionType.Feed, new ValuePair(GetFeedingCycles(pet, lastFeedTime), lastFeedTime));
+
+                var lastDrinkTime = await _feedRep.GetOneAsync(x => x.PetId == pet.Id && x.WaterCount != 0);
+                feedingCycles.Add(FeedActionType.Drink, new ValuePair(GetFeedingCycles(pet, lastDrinkTime), lastDrinkTime));
+
+                TryToUpdateVitalSigns(feedingCycles, pet);
+
+                if (_shouldUpdateVitalSigns)
+                {
+                    UpdateHappinessDaysCount(feedingCycles, pet);
+                    await UpdateFeedInfoAsync(feedingCycles, pet);
+
+                    var vitalSignToUpdate = pet.VitalSign;
+                    await _vitalSignRep.UpdateAsync(vitalSignToUpdate);
+                }
             }
         }
 
-
-
-        private async Task RecalculatePetLevelsAsync(Pet pet, VitalSign petVitalSign, Feed newFeedTime, Feed lastFeedTime, FeedActionType feedActionType)
+        private async Task UpdateFeedInfoAsync(Dictionary<FeedActionType, ValuePair> feedingCycles, Pet pet)
         {
-            newFeedTime.PetId = pet.Id;
-            int periodCount = await TryMakeFeedTimeForNewPet(pet, newFeedTime, lastFeedTime, feedActionType);
-
-            if (periodCount != 0)
+            foreach (var cycle in feedingCycles)
             {
-                UpdateVitalSignNeeds(petVitalSign, feedActionType, periodCount);
-                await _vitalSignRep.UpdateAsync(petVitalSign);
-                return;
-            }
-
-            if (lastFeedTime == null)
-            {
-                return;
-            }
-
-            var customDays = (DateTime.Now - lastFeedTime.FeedTime).Hours;
-            periodCount = customDays / DefaultSettings.StarvingPeriodInHours;
-            newFeedTime.FeedTime = DateTime.Now - TimeSpan.FromHours(customDays % DefaultSettings.StarvingPeriodInHours);
-            if (periodCount == 0)
-            {
-                return;
-            }
-
-            UpdateVitalSignNeeds(petVitalSign, feedActionType, periodCount);
-
-            var updateResult = await _vitalSignRep.UpdateAsync(petVitalSign);
-            if (updateResult)
-            { 
-                if (lastFeedTime.IdentityUserId == null)
+                var feedInfo = new Feed()
                 {
-                    newFeedTime.Id = lastFeedTime.Id;
-                    newFeedTime.IdentityUserId = null;
-                    await _feedRep.UpdateAsync(newFeedTime);
+                    FeedTime = DateTime.Now,
+                    FoodCount = 0,
+                    WaterCount = 0,
+                    IdentityUser = null,
+                    Pet = pet,
+                };
+
+                if (cycle.Key == FeedActionType.Feed)
+                {
+                    feedInfo.FoodCount = cycle.Value.FeedingUpdateCycles;
+                }
+
+                if (cycle.Key == FeedActionType.Drink)
+                {
+                    feedInfo.WaterCount = cycle.Value.FeedingUpdateCycles;
+                }
+
+                if (cycle.Value.LastFeeding == null)
+                {
+                    await _feedRep.AddAsync(feedInfo);
                 }
                 else
                 {
-                    Feed? preLastFeedTime = null;
-                    if (feedActionType == FeedActionType.Feed)
-                    {
-                        preLastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
-                            && x.FoodCount != 0 && x.IdentityUserId == null).FirstOrDefault();
-                    }
-                    if (feedActionType == FeedActionType.Drink)
-                    {
-                        preLastFeedTime = _feedRep.GetAll(x => x.PetId == pet.Id
-                            && x.WaterCount != 0 && x.IdentityUserId == null).FirstOrDefault();
-                    }
-
-                    if (preLastFeedTime != null)
-                    {
-                        await _feedRep.RemoveAsync(preLastFeedTime.Id);
-                    }
-
-                    DistributeFood(newFeedTime, feedActionType, -periodCount);
-
-                    await _feedRep.AddAsync(newFeedTime);
+                    await _feedRep.UpdateAsync(feedInfo);
                 }
             }
         }
 
-        private async Task<int> TryMakeFeedTimeForNewPet(Pet pet, Feed newFeedTime, Feed lastFeedTime, FeedActionType feedActionType)
+        private void UpdateHappinessDaysCount(Dictionary<FeedActionType, ValuePair> feedingCycles, Pet pet)
         {
-            if (lastFeedTime == null)
+            int happyPeriodIndex = 0;
+            bool isMatchFound = true;
+
+            foreach (var item in DefaultSettings.HappyPeriods)
             {
-                var customDays = (int)(DateTime.Now - pet.CreationDate).TotalHours;
-                var periodCount = customDays / DefaultSettings.StarvingPeriodInHours;
-                newFeedTime.FeedTime = DateTime.Now - TimeSpan.FromHours(customDays % DefaultSettings.StarvingPeriodInHours);
-                newFeedTime.IdentityUserId = null;
-
-                DistributeFood(newFeedTime, feedActionType, (periodCount == 0) ? -1 : -periodCount);
-
-                await _feedRep.AddAsync(newFeedTime);
-                return periodCount;
+                if (pet.VitalSign.HungerLevel == item && pet.VitalSign.ThirstyLevel == item)
+                {
+                    pet.VitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - happyPeriodIndex;
+                    isMatchFound = false;
+                    break;
+                }
+                happyPeriodIndex++;
             }
 
-            return 0;
+            if (DefaultSettings.HappyPeriods.Contains(pet.VitalSign.HungerLevel)
+                && DefaultSettings.HappyPeriods.Contains(pet.VitalSign.ThirstyLevel) 
+                && isMatchFound)
+            {
+                pet.VitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - 1;
+            }
         }
 
-        private void UpdateVitalSignNeeds(VitalSign vitalSign, FeedActionType feedActionType, int periodCount)
+        private void TryToUpdateVitalSigns(Dictionary<FeedActionType, ValuePair> feedingCycles, Pet pet)
         {
-            if (_recalculateHappyDays)
+            foreach(var cycle in feedingCycles)
             {
-                int happyPeriodIndex = 0;
-                bool isMatchFound = true;
-                foreach (var item in DefaultSettings.HappyPeriods)
+                if (cycle.Value.FeedingUpdateCycles < 1)
                 {
-                    if (vitalSign.HungerLevel == item && vitalSign.ThirstyLevel == item)
-                    {
-                        vitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - happyPeriodIndex;
-                        isMatchFound = false;
+                    continue;
+                }
+
+                _shouldUpdateVitalSigns = true;
+                switch (cycle.Key)
+                {
+                    case FeedActionType.Feed:
+                        pet.VitalSign.HungerLevel += cycle.Value.FeedingUpdateCycles;
                         break;
-                    }
-                    happyPeriodIndex++;
+                    case FeedActionType.Drink:
+                        pet.VitalSign.ThirstyLevel += cycle.Value.FeedingUpdateCycles;
+                        break;
+                    default:
+                        break;
                 }
-
-                if (DefaultSettings.HappyPeriods.Contains(vitalSign.HungerLevel)
-                    && DefaultSettings.HappyPeriods.Contains(vitalSign.ThirstyLevel) && isMatchFound)
-                {
-                    vitalSign.HappinessDaysCount += DefaultSettings.HappyPeriods.Length - 1;
-                }
-
             }
-            _recalculateHappyDays = !_recalculateHappyDays;
 
-            DistributeFood(vitalSign, feedActionType, periodCount);
-            if (vitalSign.HungerLevel >= DefaultSettings.MaxInclusiveHungerLevel ||
-                vitalSign.ThirstyLevel >= DefaultSettings.MaxInclusiveHungerLevel)
+            if (pet.VitalSign.HungerLevel >= DefaultSettings.MaxInclusiveHungerLevel
+            || pet.VitalSign.ThirstyLevel >= DefaultSettings.MaxInclusiveHungerLevel)
             {
-                vitalSign.IsAlive = false;
+                pet.VitalSign.IsAlive = false;
             }
         }
 
-        private void DistributeFood(VitalSign vitalSign, FeedActionType feedActionType, int periodCount)
+        private int GetFeedingCycles(Pet pet, Feed? lastFeedTime)
         {
-            if (feedActionType == FeedActionType.Feed)
-            {
-                vitalSign.HungerLevel += periodCount;
-            }
-            if (feedActionType == FeedActionType.Drink)
-            {
-                vitalSign.ThirstyLevel += periodCount;
-            }
-        }
-        private void DistributeFood(Feed newFeedTime, FeedActionType feedActionType, int periodCount)
-        {
-            if (feedActionType == FeedActionType.Feed)
-            {
-                newFeedTime.FoodCount = periodCount;
-            }
-            if (feedActionType == FeedActionType.Drink)
-            {
-                newFeedTime.WaterCount = periodCount;
-            }
+            var feedingCycles = lastFeedTime == null
+                ? (int)Math.Floor((DateTime.Now - pet.CreationDate).TotalHours / DefaultSettings.StarvingPeriodInHours)
+                : (int)Math.Floor((DateTime.Now - lastFeedTime.FeedTime).TotalHours / DefaultSettings.StarvingPeriodInHours);
+
+            return feedingCycles;
         }
     }
 }

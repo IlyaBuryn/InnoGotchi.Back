@@ -1,78 +1,77 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
 using InnoGotchi.Components.DtoModels;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace InnoGotchi.BusinessLogic.Services
 {
     public class BodyPartService : IBodyPartService
     {
-        private readonly IRepository<BodyPart> _bpRep;
-        private readonly IRepository<BodyPartType> _bpTypeRep;
+        private readonly IRepository<BodyPart> _bodyPartRep;
+        private readonly IRepository<BodyPartType> _bodyPartTypeRep;
         private readonly IRepository<Pet> _petRep;
         private readonly IMapper _mapper;
 
-        public BodyPartService(IRepository<BodyPart> bpRep,
-            IRepository<BodyPartType> bpTypeRep,
+        public BodyPartService(IRepository<BodyPart> bodyPartRep,
+            IRepository<BodyPartType> bodyPartTypeRep,
             IRepository<Pet> petRep,
             IMapper mapper)
         {
-            _bpRep = bpRep;
-            _bpTypeRep = bpTypeRep;
+            _bodyPartRep = bodyPartRep;
+            _bodyPartTypeRep = bodyPartTypeRep;
             _petRep = petRep;
             _mapper = mapper;
         }
 
         public async Task<int?> AddNewBodyPartAsync(BodyPartDto bodyPartToAdd)
         {
-            var type = await _bpTypeRep.GetByIdAsync(bodyPartToAdd.BodyPartTypeId);
-            if (type == null)
+            var bodyPartType = await _bodyPartTypeRep.GetOneByIdAsync(bodyPartToAdd.BodyPartTypeId);
+            if (bodyPartType == null)
             {
-                throw new NotFoundException(nameof(type));
+                throw new NotFoundException(nameof(bodyPartType));
             }
 
-            return await _bpRep.AddAsync(_mapper.Map<BodyPart>(bodyPartToAdd));
+            var bodyPart = _mapper.Map<BodyPart>(bodyPartToAdd);
+            return await _bodyPartRep.AddAsync(bodyPart);
         }
 
         public async Task<bool> RemoveBodyPartAsync(int bodyPartId)
         {
-            var bodyPart = await _bpRep.GetByIdAsync(bodyPartId);
+            var bodyPart = await _bodyPartRep.GetOneByIdAsync(bodyPartId);
             if (bodyPart == null)
             {
                 throw new NotFoundException(nameof(bodyPart));
             }
 
-            return await _bpRep.RemoveAsync(bodyPartId);
+            return await _bodyPartRep.RemoveAsync(bodyPartId);
         }
 
         public async Task<bool> UpdateBodyPartAsync(BodyPartDto bodyPartToUpdate)
         {
-            var bodyPart = await _bpRep.GetByIdAsync(bodyPartToUpdate.Id);
+            var bodyPart = await _bodyPartRep.GetOneByIdAsync(bodyPartToUpdate.Id);
             if (bodyPart == null)
             {
                 throw new NotFoundException(nameof(bodyPart));
             }
 
-            var type = await _bpTypeRep.GetByIdAsync(bodyPartToUpdate.BodyPartTypeId);
-            if (type == null)
+            var bodyPartType = await _bodyPartTypeRep.GetOneByIdAsync(bodyPartToUpdate.BodyPartTypeId);
+            if (bodyPartType == null)
             {
-                throw new NotFoundException(nameof(type));
+                throw new NotFoundException(nameof(bodyPartType));
             }
 
-            bodyPart.BodyPartTypeId = type.Id;
+            bodyPart.BodyPartTypeId = bodyPartType.Id;
             bodyPart.Image = bodyPartToUpdate.Image;
             bodyPart.Color = bodyPartToUpdate.Color;
 
-            return await _bpRep.UpdateAsync(bodyPart);
+            return await _bodyPartRep.UpdateAsync(bodyPart);
         }
 
         public async Task<BodyPartDto?> GetBodyPartByIdAsync(int bodyPartId)
         {
-            var bodyPart = await _bpRep.GetByIdAsync(bodyPartId);
+            var bodyPart = await _bodyPartRep.GetOneByIdAsync(bodyPartId);
             if (bodyPart == null)
             {
                 throw new NotFoundException(nameof(bodyPart));
@@ -81,17 +80,16 @@ namespace InnoGotchi.BusinessLogic.Services
             return _mapper.Map<BodyPartDto?>(bodyPart);
         }
 
-        public List<BodyPartDto> GetBodyParts()
+        public async Task<List<BodyPartDto>> GetBodyPartsAsync()
         {
-            var bparts = _bpRep.GetAll().Include(x => x.BodyPartType);
-            return _mapper.Map<List<BodyPartDto>>(bparts);
+            var bodyParts = await _bodyPartRep.GetAllAsync(x => x.BodyPartType);
+            return _mapper.Map<List<BodyPartDto>>(bodyParts);
 
         }
 
-        public List<BodyPartDto> GetBodyPartsByPetId(int petId)
+        public async Task<List<BodyPartDto>> GetBodyPartsByPetIdAsync(int petId)
         {
-            var bodyParts = _bpRep.GetAll(x => x.Pets.All(p => p.Id == petId))
-                .Include(x => x.BodyPartType);
+            var bodyParts = await _bodyPartRep.GetManyByIdAsync(petId, x => x.BodyPartType);
             if (bodyParts == null)
             {
                 throw new NotFoundException(nameof(BodyPart));
@@ -100,10 +98,12 @@ namespace InnoGotchi.BusinessLogic.Services
             return _mapper.Map<List<BodyPartDto>>(bodyParts);
         }
 
-        public List<BodyPartDto> GetBodyPartsByTypeId(int typeId)
+        public async Task<List<BodyPartDto>> GetBodyPartsByTypeIdAsync(int bodyPartTypeId)
         {
-            var bodyParts = _bpRep.GetAll(x => x.BodyPartTypeId == typeId)
-                .Include(x => x.BodyPartType);
+            var bodyParts = await _bodyPartRep.GetManyAsync(
+                expression: x => x.BodyPartTypeId == bodyPartTypeId, 
+                includeProperties: x => x.BodyPartType);
+
             if (bodyParts == null)
             {
                 throw new NotFoundException(nameof(BodyPart));
@@ -113,18 +113,21 @@ namespace InnoGotchi.BusinessLogic.Services
         }
 
 
-        public async Task<int?> CreateBodyPartTypeAsync(BodyPartTypeDto bodyPartType)
+        public async Task<int?> CreateBodyPartTypeAsync(BodyPartTypeDto bodyPartTypeToAdd)
         {
-            return await _bpTypeRep.AddAsync(_mapper.Map<BodyPartType>(bodyPartType));
+            var bodyPartType = _mapper.Map<BodyPartType>(bodyPartTypeToAdd);
+            return await _bodyPartTypeRep.AddAsync(bodyPartType);
         }
 
         public async Task<bool> DeleteBodyPartTypeAsync(int bodyPartTypeId)
         {
-            var bpType = _bpTypeRep.GetByIdAsync(bodyPartTypeId);
+            var bpType = _bodyPartTypeRep.GetOneByIdAsync(bodyPartTypeId);
             if (bpType == null)
+            {
                 throw new NotFoundException(nameof(bpType));
+            }
 
-            return await _bpTypeRep.RemoveAsync(bodyPartTypeId);
+            return await _bodyPartTypeRep.RemoveAsync(bodyPartTypeId);
         }
 
     }

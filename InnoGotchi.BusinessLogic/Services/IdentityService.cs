@@ -6,8 +6,7 @@ using InnoGotchi.Components.Enums;
 using InnoGotchi.Components.Settings;
 using InnoGotchi.DataAccess.Interfaces;
 using InnoGotchi.DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -18,24 +17,26 @@ namespace InnoGotchi.BusinessLogic.Services
     {
         private readonly IRepository<IdentityUser> _userRep;
         private readonly IRepository<IdentityRole> _roleRep;
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly JwtOptions _jwtOptions;
 
         public IdentityService(IRepository<IdentityUser> userRep,
             IRepository<IdentityRole> roleRep,
-            IConfiguration configuration,
-            IMapper mapper)
+            IMapper mapper,
+            IOptions<JwtOptions> jwtOptions)
         {
-            _configuration = configuration;
+            _jwtOptions = jwtOptions.Value;
             _userRep = userRep;
             _roleRep = roleRep;
             _mapper = mapper;
         }
 
-        public AuthenticateResponseDto Authenticate(AuthenticateRequestDto model)
+        public async Task<AuthenticateResponseDto> AuthenticateAsync(AuthenticateRequestDto model)
         {
-            var user = _userRep.GetAll(x => x.Username == model.Username
-                && x.Password == model.Password).Include(u => u.Role).FirstOrDefault();
+            var user = await _userRep.GetOneAsync(
+                expression: x => x.Username == model.Username && x.Password == model.Password, 
+                includeProperties: u => u.Role);
+
             if (user == null)
             {
                 throw new AuthenticateException();
@@ -43,7 +44,7 @@ namespace InnoGotchi.BusinessLogic.Services
 
             if (user.Role == null)
             {
-                throw new NotFoundException(nameof(user.Role));
+                throw new AuthenticateException("User not having a valid role.");
             }
 
             var token = CreateJwtToken(user);
@@ -84,13 +85,14 @@ namespace InnoGotchi.BusinessLogic.Services
 
             var addedUser = await _userRep.AddAsync(user);
 
-            var response = Authenticate(new AuthenticateRequestDto
+            var response = await AuthenticateAsync(new AuthenticateRequestDto
             {
                 Username = user.Username,
                 Password = user.Password,
                 Name = user.Name,
                 Surname = user.Surname,
             });
+
             return response;
         }
 
@@ -114,9 +116,10 @@ namespace InnoGotchi.BusinessLogic.Services
 
         public async Task<bool> UpdateUserAsync(IdentityUserDto userToUpdate, UpdateType updateType)
         {
-            var user = _userRep.GetAll(x => x.Id == userToUpdate.Id && x.Username == userToUpdate.Username)
-                .Include(x => x.Role)
-                .FirstOrDefault();
+            var user = await _userRep.GetOneAsync(
+                expression: x => x.Id == userToUpdate.Id && x.Username == userToUpdate.Username,
+                includeProperties: x => x.Role);
+
             if (user == null)
             {
                 throw new NotFoundException(nameof(user));
@@ -128,12 +131,14 @@ namespace InnoGotchi.BusinessLogic.Services
                 user.Surname = userToUpdate.Surname;
                 user.Image = userToUpdate.Image;
             }
+
             if (updateType == UpdateType.password)
             {
                 user.Password = userToUpdate.Password;
             }
 
-            return await _userRep.UpdateAsync(_mapper.Map<IdentityUser>(user));
+            var mappedUser = _mapper.Map<IdentityUser>(user);
+            return await _userRep.UpdateAsync(mappedUser);
         }
 
         private string CreateJwtToken(IdentityUser user)
@@ -144,11 +149,12 @@ namespace InnoGotchi.BusinessLogic.Services
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
-            var jwtKey = _configuration.GetSection("Jwt:Key").Value;
+            var jwtKey = _jwtOptions.Key;
             if (jwtKey == null)
             {
                 throw new ArgumentNullException("Jwt:Key value is missing from configuration");
             }
+
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtKey));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
