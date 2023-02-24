@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using FluentValidation;
-using FluentValidation.Results;
 using InnoGotchi.API.Controllers;
 using InnoGotchi.BusinessLogic.Exceptions;
 using InnoGotchi.BusinessLogic.Interfaces;
+using InnoGotchi.BusinessLogic.Services;
 using InnoGotchi.Components.DtoModels;
+using InnoGotchi.DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -14,7 +14,6 @@ namespace InnoGotchi.Tests.PetTests
     public class PetControllerTests
     {
         private Mock<IPetService> _petServiceMock;
-        private Mock<IValidator<PetDto>> _petValidatorMock;
         private Fixture _fixture;
         private PetsController _controller;
 
@@ -23,169 +22,159 @@ namespace InnoGotchi.Tests.PetTests
             _fixture = new Fixture();
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
             _petServiceMock = new Mock<IPetService>();
 
-            _petValidatorMock = new Mock<IValidator<PetDto>>();
-            var validationResult = new Mock<ValidationResult>();
-            validationResult.Setup(x => x.IsValid).Returns(true);
-            _petValidatorMock.Setup(v => v.ValidateAsync(It.IsAny<PetDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(validationResult.Object);
+            _controller = new PetsController(_petServiceMock.Object);
         }
 
         [Fact]
-        public void Get_PetById_ReturnOk()
+        public async Task GetPetByIdAsync_WhenValidId_ReturnOk()
         {
             // Arrange
+            var id = _fixture.Create<int>();
             var pet = _fixture.Create<PetDto>();
-            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Returns(pet);
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            _petServiceMock.Setup(srv => srv.GetPetByIdAsync(id)).ReturnsAsync(pet);
 
             // Act
-            var result = _controller.GetPetById(It.IsAny<int>());
-            var obj = result as ObjectResult;
+            var result = await _controller.GetPetByIdAsync(id);
+            var objResult = result as OkObjectResult;
 
             // Assert
-            obj.StatusCode.Should().Be(200);
+            objResult.StatusCode.Should().Be(200);
+            objResult.Value.Should().Be(pet);
         }
 
         [Fact]
-        public void Get_PetById_ThrowNotFoundException()
+        public async Task GetPetByIdAsync_WhenThrowsException_ThrowNotFoundException()
         {
             // Arrange 
-            _petServiceMock.Setup(srv => srv.GetPetById(It.IsAny<int>())).Throws(new NotFoundException());
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            var id = _fixture.Create<int>();
+            _petServiceMock.Setup(srv => srv.GetPetByIdAsync(id)).Throws<NotFoundException>();
 
-            // Act
-            var result = _controller.GetPetById(It.IsAny<int>());
-            var obj = result as ObjectResult;
-
-            // Assert
-            obj.StatusCode.Should().Be(404);
+            // Act & Assert
+            await _controller.Invoking(x => x.GetPetByIdAsync(id))
+                .Should().ThrowAsync<NotFoundException>();
         }
 
         [Fact]
-        public async Task CreateAsync_Pet_ReturnOkAndSameId()
+        public async Task CreatePetAsync_WhenValidPet_ReturnOk()
         {
             // Arrange
+            var id = _fixture.Create<int>();
             var pet = _fixture.Create<PetDto>();
-            _petServiceMock.Setup(srv => srv.AddNewPetAsync(It.IsAny<PetDto>())).ReturnsAsync(pet.Id);
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            _petServiceMock.Setup(srv => srv.AddNewPetAsync(pet)).ReturnsAsync(id);
 
             // Act
             var result = await _controller.AddPetAsync(pet);
-            var obj = result as ObjectResult;
+            var objResult = result as ObjectResult;
 
             // Assert
-            obj.StatusCode.Should().Be(201);
-            obj.Value.Should().Be(pet.Id);
+            objResult.StatusCode.Should().Be(201);
+            objResult.Value.Should().Be(id);
         }
 
         [Fact]
-        public async Task CreateAsync_Pet_ThrowExceptions()
+        public async Task CreatePetAsync_WhenModelStateIsNotValid_ThrowDataValidationExceptions()
+        {
+            // Arrange
+            var invalidPet = _fixture.Build<PetDto>()
+                .With(p => p.Name, (string)null)
+                .Create();
+            _controller.ModelState.AddModelError("Name", "Pet name is required!");
+
+            // Act & Assert
+            await _controller.Invoking(c => c.AddPetAsync(invalidPet))
+                .Should().ThrowAsync<DataValidationException>();
+        }
+
+        [Fact]
+        public async Task UpdatePetAsync_WhenValidPet_ReturnOkAndTrue()
         {
             // Arrange
             var pet = _fixture.Create<PetDto>();
-            _petServiceMock.Setup(srv => srv.AddNewPetAsync(It.IsAny<PetDto>())).Throws(new DataValidationException());
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            _petServiceMock.Setup(srv => srv.UpdatePetAsync(pet)).ReturnsAsync(true);
 
             // Act
-            var result = await _controller.AddPetAsync(pet);
-            var obj = result as ObjectResult;
+            var result = await _controller.UpdatePetAsync(pet);
+            var objResult = result as OkObjectResult;
 
             // Assert
-            obj.StatusCode.Should().BeOneOf(400);
+            objResult.StatusCode.Should().Be(200);
+            var response = objResult.Value.Should().BeAssignableTo<bool>().Subject;
+            response.Should().BeTrue();
         }
 
         [Fact]
-        public async Task UpdateAsync_Pet_ReturnOkAndTrue()
+        public async Task UpdatePetAsync_WhenInvalidPet_ThrowDataValidationExceptions()
         {
             // Arrange
-            _petServiceMock.Setup(srv => srv.UpdatePetAsync(It.IsAny<PetDto>())).ReturnsAsync(true);
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            var invalidPet = _fixture.Build<PetDto>()
+                .With(p => p.Name, (string)null)
+                .Create();
+            _controller.ModelState.AddModelError("Name", "Pet name is required!");
 
-            // Act
-            var result = await _controller.UpdatePetAsync(_fixture.Create<PetDto>());
-            var obj = result as ObjectResult;
-
-            // Assert
-            obj.StatusCode.Should().Be(200);
-            obj.Value.Should().Be(true);
+            // Act & Assert
+            await _controller.Invoking(c => c.UpdatePetAsync(invalidPet))
+                .Should().ThrowAsync<DataValidationException>();
         }
 
         [Fact]
-        public async Task UpdateAsync_Pet_ThrowExceptions()
+        public async Task DeletePetByIdAsync_WhenValidId_ReturnOkAndTrue()
         {
             // Arrange
-            _petServiceMock.Setup(srv => srv.UpdatePetAsync(It.IsAny<PetDto>())).Throws(new DataValidationException());
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            var id = _fixture.Create<int>();
+            _petServiceMock.Setup(srv => srv.RemovePetAsync(id)).ReturnsAsync(true);
 
             // Act
-            var result = await _controller.UpdatePetAsync(_fixture.Create<PetDto>());
-            var obj = result as ObjectResult;
+            var result = await _controller.DeletePetAsync(id);
+            var objResult = result as OkObjectResult;
 
             // Assert
-            obj.StatusCode.Should().BeOneOf(400);
+            objResult.StatusCode.Should().Be(200);
+            var response = objResult.Value.Should().BeAssignableTo<bool>().Subject;
+            response.Should().BeTrue();
         }
 
         [Fact]
-        public async Task DeleteAsync_PetById_ReturnOkAndTrue()
+        public async Task DeletePetByIdAsync_InvalidId_ThrowNotFoundException()
         {
-            // Arrange
-            _petServiceMock.Setup(srv => srv.RemovePetAsync(It.IsAny<int>())).ReturnsAsync(true);
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            // Arrange 
+            var id = _fixture.Create<int>();
+            _petServiceMock.Setup(srv => srv.RemovePetAsync(id)).Throws<NotFoundException>();
 
-            // Act
-            var result = await _controller.DeletePetAsync(It.IsAny<int>());
-            var obj = result as ObjectResult;
-
-            // Assert
-            obj.StatusCode.Should().BeOneOf(200, 204);
-            obj.Value.Should().Be(true);
+            // Act & Assert
+            await _controller.Invoking(x => x.DeletePetAsync(id))
+                .Should().ThrowAsync<NotFoundException>();
         }
 
         [Fact]
-        public async Task DeleteAsync_PetById_ThrowNotFoundException()
-        {
-            // Arrange
-            _petServiceMock.Setup(srv => srv.RemovePetAsync(It.IsAny<int>())).Throws(new NotFoundException());
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
-
-            // Act
-            var result = await _controller.DeletePetAsync(It.IsAny<int>());
-            var obj = result as ObjectResult;
-
-            // Assert
-            obj.StatusCode.Should().BeOneOf(404);
-        }
-
-        [Fact]
-        public void Get_PetsById_ReturnOk()
+        public async Task GetPetsByIdAsync_WhenValidId_ReturnOk()
         {
             // Arrange
             var pets = _fixture.CreateMany<PetDto>(5).ToList();
-            _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Returns(pets);
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            var pet = new List<PetDto> { pets.First() };
+            _petServiceMock.Setup(srv => srv.GetPetsByFarmIdAsync(pets.First().Id)).ReturnsAsync(pet);
 
             // Act
-            var result = _controller.GetPetByFarmId(It.IsAny<int>());
-            var obj = result as ObjectResult;
+            var result = await _controller.GetPetByFarmIdAsync(pets.First().Id);
+            var objResult = result as OkObjectResult;
 
             // Assert
-            obj.StatusCode.Should().BeOneOf(200);
+            objResult.StatusCode.Should().Be(200);
+            objResult.Value.Should().BeEquivalentTo(pet);
         }
 
         [Fact]
-        public void Get_PetsById_ThorwException()
+        public async Task GetPetsByIdAsync_WhenInvalidId_ThorwNotFoundException()
         {
-            // Arrange
-            _petServiceMock.Setup(srv => srv.GetPetsByFarmId(It.IsAny<int>())).Throws(new NotFoundException());
-            _controller = new PetsController(_petServiceMock.Object, _petValidatorMock.Object);
+            // Arrange 
+            var id = _fixture.Create<int>();
+            _petServiceMock.Setup(srv => srv.GetPetsByFarmIdAsync(id)).Throws<NotFoundException>();
 
-            // Act
-            var result = _controller.GetPetByFarmId(It.IsAny<int>());
-            var obj = result as ObjectResult;
-
-            // Assert
-            obj.StatusCode.Should().BeOneOf(404);
+            // Act & Assert
+            await _controller.Invoking(x => x.GetPetByFarmIdAsync(id))
+                .Should().ThrowAsync<NotFoundException>();
         }
     }
 }

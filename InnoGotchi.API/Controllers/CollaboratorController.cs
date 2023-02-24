@@ -53,9 +53,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<CollaboratorDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public IActionResult GetCollabsByFarm([FromRoute] int farmId)
+        public async Task<IActionResult> GetCollabsByFarmAsync([FromRoute] int farmId)
         {
-            var response = _collaboratorService.GetAllCollaboratorsByFarmAsync(farmId);
+            var response = await _collaboratorService.GetAllCollaboratorsByFarmAsync(farmId);
             return Ok(response);
         }
 
@@ -64,9 +64,9 @@ namespace InnoGotchi.API.Controllers
         [Authorize]
         [ProducesResponseType(typeof(List<CollaboratorDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public IActionResult GetCollabsByUser([FromRoute] int userId)
+        public async Task<IActionResult> GetCollabsByUserAsync([FromRoute] int userId)
         {
-            var response = _collaboratorService.GetAllCollaboratorsByUserAsync(userId);
+            var response = await _collaboratorService.GetAllCollaboratorsByUserAsync(userId);
             return Ok(response);
         }
     }

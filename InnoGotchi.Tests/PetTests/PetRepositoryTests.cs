@@ -17,15 +17,17 @@ namespace InnoGotchi.Tests.PetTests
             _fixture = new Fixture();
             _fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => _fixture.Behaviors.Remove(b));
             _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+
             _context = ContextGenerator.Generate();
+
+            _petRepository = new InnoGotchiRepository<Pet>(_context);
         }
 
         [Fact]
-        public async Task Create_Pet_ReturnPetId()
+        public async Task CreatePetAsync_ValidPet_ReturnPetId()
         {
             // Arrange
             var pet = _fixture.Create<Pet>();
-            _petRepository = new InnoGotchiRepository<Pet>(_context);
 
             // Act
             var response = await _petRepository.AddAsync(pet);
@@ -37,12 +39,11 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task GetOne_Pet_ReturnPet()
+        public async Task GetOnePetAsync_ValidExpression_ReturnPet()
         {
             // Arrange
             var id = _fixture.Create<int>();
             var pet = _fixture.Create<Pet>();
-            _petRepository = new InnoGotchiRepository<Pet>(_context);
             _context.Pets.Add(pet);
             _context.SaveChanges();
 
@@ -54,28 +55,26 @@ namespace InnoGotchi.Tests.PetTests
         }
 
         [Fact]
-        public async Task GetOne_PetById_ReturnPet()
+        public async Task GetOnePetByIdAsync_ValidId_ReturnPet()
         {
             // Arrange
             var pet = _fixture.Create<Pet>();
-            _petRepository = new InnoGotchiRepository<Pet>(_context);
             _context.Pets.Add(pet);
             _context.SaveChanges();
 
             // Act
-            var result = await _petRepository.GetByIdAsync(pet.Id);
+            var result = await _petRepository.GetOneByIdAsync(pet.Id);
 
             // Assert
             result.Should().Be(pet);
         }
 
-        [Theory]
-        [InlineData(5)]
-        public async Task Remove_PetById_ReturnTrue(int itemsCount)
+        [Fact]
+        public async Task Remove_PetById_ReturnTrue()
         {
             // Arrange
             var pet = _fixture.Create<Pet>();
-            _petRepository = new InnoGotchiRepository<Pet>(_context);
+            var itemsCount = _fixture.Create<int>();
             _context.Pets.Add(pet);
             TestPetsCollection(_context, itemsCount);
 
@@ -83,16 +82,14 @@ namespace InnoGotchi.Tests.PetTests
             var result = await _petRepository.RemoveAsync(pet.Id);
 
             // Assert
-            result.Should().Be(true);
+            result.Should().BeTrue();
             _context.Pets.Count().Should().Be(itemsCount);
         }
 
-        [Theory]
-        [InlineData(5)]
-        public async Task Update_Pet_ReturnTrue(int itemsCount)
+        [Fact]
+        public async Task UpdatePetAsync_ValidPet_ReturnTrue()
         {
             // Arrange
-            _petRepository = new InnoGotchiRepository<Pet>(_context);
             var pet = _fixture.Create<Pet>();
             _context.Pets.Add(pet);
             _context.SaveChanges();
@@ -104,7 +101,7 @@ namespace InnoGotchi.Tests.PetTests
             var result = await _petRepository.UpdateAsync(pet);
 
             // Assert
-            result.Should().Be(true);
+            result.Should().BeTrue();
             _context.Pets.First().Should().Be(pet);
         }
 

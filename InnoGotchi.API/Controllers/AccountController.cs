@@ -15,8 +15,7 @@ namespace InnoGotchi.API.Controllers
     {
         private readonly IIdentityService _identityService;
 
-        public AccountController(
-            IIdentityService identityService)
+        public AccountController(IIdentityService identityService)
         {
             _identityService = identityService;
         }

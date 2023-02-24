@@ -176,7 +176,15 @@ namespace InnoGotchi.BusinessLogic.Services
                 throw new NotFoundException(nameof(farm));
             }
 
-            var pets = await _petRep.GetAllAsync(x => x.FarmId == farmId, x => x.VitalSign);
+            var pets = await _petRep.GetManyAsync(
+                expression: x => x.FarmId == farmId,
+                includeProperties: x => x.VitalSign);
+
+            if (pets == null || pets.Count() == 0)
+            {
+                return;
+            }
+
             foreach(var pet in pets)
             {
                 var petVitalSign = pet.VitalSign;

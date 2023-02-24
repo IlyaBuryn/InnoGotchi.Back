@@ -99,11 +99,6 @@ namespace InnoGotchi.BusinessLogic.Services
                 expression: x => x.FarmId == farmId,
                 includeProperties: new Expression<Func<Pet, object>>[] { x => x.BodyParts, x => x.VitalSign });
 
-            if (pets == null)
-            {
-                throw new NotFoundException(nameof(Farm));
-            }
-
             return _mapper.Map<List<PetDto>>(pets);
         }
 
