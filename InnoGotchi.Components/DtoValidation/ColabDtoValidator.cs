@@ -9,8 +9,8 @@ namespace InnoGotchi.Components.DtoValidation
     {
         public ColabDtoValidator()
         {
-            RuleFor(c => c.FarmId).NotEmpty().WithMessage("Farm id is required.");
-            RuleFor(c => c.IdentityUserId).NotEmpty().WithMessage("User id is required.");
+            RuleFor(c => c.FarmId).NotEmpty().WithMessage("{PropertyName} is required.");
+            RuleFor(c => c.IdentityUserId).NotEmpty().WithMessage("{PropertyName} is required.");
         }
     }
 }

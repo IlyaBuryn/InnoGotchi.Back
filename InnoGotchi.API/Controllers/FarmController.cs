@@ -32,10 +32,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreateFarmAsync([FromBody] FarmDto farm)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             int? response = await _farmService.CreateFarmAsync(farm);
             return CreatedAtAction(nameof(CreateFarmAsync), response);
         }
@@ -59,10 +55,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFarmAsync([FromBody] FarmDto farmToUpdate)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             var response = await _farmService.UpdateFarmAsync(farmToUpdate);
             return Ok(response);
         }

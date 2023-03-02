@@ -28,10 +28,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> FeedPetAsync([FromBody] FeedDto feedInfo)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             int? response = await _feedService.FeedPetAsync(feedInfo, BusinessLogic.Services.FeedActionType.Feed);
             return CreatedAtAction(nameof(FeedPetAsync), response);
         }

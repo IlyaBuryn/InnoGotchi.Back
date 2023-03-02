@@ -41,10 +41,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SignUpAsync([FromBody] IdentityUserDto model)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             var response = await _identityService.RegisterAsync(model);
             return CreatedAtAction(nameof(SignUpAsync), response);
         }
@@ -69,10 +65,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdatePasswordAsync([FromBody] IdentityUserDto model)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             var response = await _identityService.UpdateUserAsync(model, UpdateType.password);
             return Ok(response);
         }

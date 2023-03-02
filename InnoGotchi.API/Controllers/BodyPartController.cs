@@ -29,10 +29,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddBodyPartAsync([FromBody] BodyPartDto bodyPart)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             int? response = await _bodyPartService.AddNewBodyPartAsync(bodyPart);
             return CreatedAtAction(nameof(AddBodyPartAsync), response);
         }
@@ -45,10 +41,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBodyPartAsync([FromBody] BodyPartDto bodyPart)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             var response = await _bodyPartService.UpdateBodyPartAsync(bodyPart);
             return Ok(response);
         }
@@ -71,7 +63,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetBodyPartsAsync()
         {
-
             var response = await _bodyPartService.GetBodyPartsAsync();
             return Ok(response);
         }

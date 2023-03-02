@@ -29,10 +29,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddCollabAsync([FromBody] CollaboratorDto collaborator)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             int? response = await _collaboratorService.CreateCollaboratorAsync(collaborator);
             return CreatedAtAction(nameof(AddCollabAsync), response);
         }

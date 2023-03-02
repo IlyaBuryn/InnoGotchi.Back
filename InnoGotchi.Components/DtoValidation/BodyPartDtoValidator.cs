@@ -9,7 +9,7 @@ namespace InnoGotchi.Components.DtoValidation
     {
         public BodyPartDtoValidator()
         {
-            RuleFor(b => b.BodyPartTypeId).NotEmpty().WithMessage("BodyPartType id is required.");
+            RuleFor(b => b.BodyPartTypeId).NotEmpty().WithMessage("{PropertyName} is required.");
         }
     }
 }

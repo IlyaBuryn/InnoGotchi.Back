@@ -9,8 +9,8 @@ namespace InnoGotchi.Components.DtoValidation
     {
         public IdentityRoleDtoValidator()
         {
-            RuleFor(r => r.Name).NotEmpty().WithMessage("Role name is required.");
-            RuleFor(r => r.Name).MaximumLength(64).WithMessage("The name must be less than 64 characters.");
+            RuleFor(r => r.Name).NotEmpty().WithMessage("{PropertyName} is required.");
+            RuleFor(r => r.Name).MaximumLength(64).WithMessage("{PropertyName} must be less than {MaxLength} characters.");
         }
     }
 }

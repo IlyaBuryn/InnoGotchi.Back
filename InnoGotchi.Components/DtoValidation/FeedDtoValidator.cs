@@ -9,8 +9,8 @@ namespace InnoGotchi.Components.DtoValidation
     {
         public FeedDtoValidator()
         {
-            RuleFor(p => p.FoodCount).InclusiveBetween(0, 3).WithMessage("Exceeding the maximum or minimum allowable values.");
-            RuleFor(p => p.WaterCount).InclusiveBetween(0, 3).WithMessage("Exceeding the maximum or minimum allowable values.");
+            RuleFor(p => p.FoodCount).InclusiveBetween(0, 3).WithMessage("Exceeding the maximum ({To}) or minimum ({From}) allowable values.");
+            RuleFor(p => p.WaterCount).InclusiveBetween(0, 3).WithMessage("Exceeding the maximum ({To}) or minimum ({From}) allowable values.");
         }
     }
 }

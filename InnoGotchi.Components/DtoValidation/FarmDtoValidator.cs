@@ -9,9 +9,9 @@ namespace InnoGotchi.Components.DtoValidation
     {
         public FarmDtoValidator()
         {
-            RuleFor(f => f.Name).NotEmpty().WithMessage("Farm name is required.");
-            RuleFor(f => f.Name).MaximumLength(128).WithMessage("The name must be less than 64 characters.");
-            RuleFor(f => f.IdentityUserId).NotEmpty().WithMessage("User id is required.");
+            RuleFor(f => f.Name).NotEmpty().WithMessage("{PropertyName} is required.");
+            RuleFor(f => f.Name).MaximumLength(128).WithMessage("{PropertyName} must be less than {MaxLength} characters.");
+            RuleFor(f => f.IdentityUserId).NotEmpty().WithMessage("{PropertyName} is required.");
         }
     }
 }

@@ -30,10 +30,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddPetAsync([FromBody] PetDto pet)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             int? response = await _petService.AddNewPetAsync(pet);
             return CreatedAtAction(nameof(AddPetAsync), response);
         }
@@ -46,10 +42,6 @@ namespace InnoGotchi.API.Controllers
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdatePetAsync([FromBody] PetDto petToUpdate)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new DataValidationException();
-            }
             var response = await _petService.UpdatePetAsync(petToUpdate);
             return Ok(response);
         }

@@ -9,10 +9,10 @@ namespace InnoGotchi.Components.DtoValidation
     {
         public PetDtoValidator()
         {
-            RuleFor(p => p.Name).NotEmpty().WithMessage("Pet name is required.");
-            RuleFor(p => p.Name).MaximumLength(64).WithMessage("The name must be less than 64 characters.");
-            RuleFor(p => p.FarmId).NotEmpty().WithMessage("Farm id is required.");
-            RuleFor(p => p.BodyParts).NotEmpty();
+            RuleFor(p => p.Name).NotEmpty().WithMessage("{PropertyName} is required.");
+            RuleFor(p => p.Name).MaximumLength(64).WithMessage("{PropertyName} must be less than {MaxLength} characters.");
+            RuleFor(p => p.FarmId).NotEmpty().WithMessage("{PropertyName} is required.");
+            RuleFor(p => p.BodyParts).NotEmpty().WithMessage("{PropertyName} is required.");
         }
     }
 }
